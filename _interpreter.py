@@ -10,11 +10,11 @@ class Interpreter:
     def getVarVal(self, _token, knownVars):
         try:
             if _token.T_TYPE in (T_INT, T_FLOAT, T_STRING):
-                return _token.value
+                return _token
             elif _token.T_TYPE in (T_IDENTIFIER):
                 for knownVar in knownVars:
                     if knownVar[0].value == _token.value:
-                        return knownVar[1].value
+                        return knownVar[1]
                 return None
         except:
             if type(_token) in (int, str, float):
@@ -39,13 +39,22 @@ class Interpreter:
         if type(right) == GetAVStatement:
             right = self.getAVStat(right, knownVars)
 
+        opl = self.getVarVal(left.tok, knownVars)
+        opr = self.getVarVal(right.tok, knownVars)
+        if type(opl) == NumberNode:
+            opl = opl.tok
+        if type(opr) == NumberNode:
+            opr = opr.tok
+        opl = opl.value
+        opr = opr.value
+
         if op.T_TYPE == T_PLUS:
-            res = round(self.getVarVal(left.tok, knownVars)+self.getVarVal(right.tok, knownVars),8)
+            res = round(opl+opr,8)
             res_T = type(res)
             return NumberNode(Token(TOK[res_T],res))
         elif op.T_TYPE == T_MINUS:
             try:
-                res = round(self.getVarVal(left.tok, knownVars)-self.getVarVal(right.tok, knownVars),8)
+                res = round(opl-opr,8)
                 res_T = type(res)
                 return NumberNode(Token(TOK[res_T],res))
             except:
@@ -53,7 +62,7 @@ class Interpreter:
                 return None
         elif op.T_TYPE == T_DIV:
             try:
-                res = round(self.getVarVal(left.tok, knownVars)/self.getVarVal(right.tok, knownVars),8)
+                res = round(opl/opr,8)
                 res_T = type(res)
                 return NumberNode(Token(TOK[res_T],res))
             except:
@@ -61,7 +70,7 @@ class Interpreter:
                 return None
         elif op.T_TYPE == T_MUL:
             try:
-                res = round(self.getVarVal(left.tok, knownVars)*self.getVarVal(right.tok, knownVars),8)
+                res = round(opl*opr,8)
                 res_T = type(res)
                 return NumberNode(Token(TOK[res_T],res))
             except:
@@ -69,7 +78,7 @@ class Interpreter:
                 return None
         elif op.T_TYPE == T_EQUAL:
             try:
-                res = self.getVarVal(left.tok, knownVars)==self.getVarVal(right.tok, knownVars)
+                res = opl==opr
                 if res == True:
                     return NumberNode(Token(T_TRUE))
                 elif res == False:
@@ -79,7 +88,7 @@ class Interpreter:
                 return None
         elif op.T_TYPE == T_NOTEQUAL:
             try:
-                res = self.getVarVal(left.tok, knownVars)!=self.getVarVal(right.tok, knownVars)
+                res = opl!=opr
                 if res == True:
                     return NumberNode(Token(T_TRUE))
                 elif res == False:
@@ -89,7 +98,7 @@ class Interpreter:
                 return None
         elif op.T_TYPE == T_GRT:
             try:
-                res = self.getVarVal(left.tok, knownVars)>self.getVarVal(right.tok, knownVars)
+                res = opl>opr
                 if res == True:
                     return NumberNode(Token(T_TRUE))
                 elif res == False:
@@ -99,7 +108,7 @@ class Interpreter:
                 return None
         elif op.T_TYPE == T_LST:
             try:
-                res = self.getVarVal(left.tok, knownVars) < self.getVarVal(right.tok, knownVars)
+                res = opl<opr
                 if res == True:
                     return NumberNode(Token(T_TRUE))
                 elif res == False:
@@ -109,7 +118,7 @@ class Interpreter:
                 return None
         elif op.T_TYPE == T_GOE:
             try:
-                res = self.getVarVal(left.tok, knownVars) >= self.getVarVal(right.tok, knownVars)
+                res = opl>=opr
                 if res == True:
                     return NumberNode(Token(T_TRUE))
                 elif res == False:
@@ -119,7 +128,7 @@ class Interpreter:
                 return None
         elif op.T_TYPE == T_LOE:
             try:
-                res = self.getVarVal(left.tok, knownVars) <= self.getVarVal(right.tok, knownVars)
+                res = opl<=opr
                 if res == True:
                     return NumberNode(Token(T_TRUE))
                 elif res == False:
@@ -143,6 +152,13 @@ class Interpreter:
             elif type(value)==GetAVStatement:
                 value = self.getAVStat(value,knownVars)
                 knownVars.append([Token(T_IDENTIFIER,expr.var_name.value),value.tok])
+            elif type(value)==NumberNode:
+                if value.tok.T_TYPE == T_IDENTIFIER:
+                    value = self.getVarVal(value.tok,knownVars)
+                    knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value])
+                    print(knownVars)
+                else:
+                    knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value])
             else:
                 knownVars.append([Token(T_IDENTIFIER,expr.var_name.value),expr.expr_value.tok])
         else:
@@ -153,6 +169,12 @@ class Interpreter:
             elif type(value) == GetAVStatement:
                 value = self.getAVStat(value, knownVars)
                 knownVars[found_index][1]=value.tok
+            elif type(value) == NumberNode:
+                if value.tok.T_TYPE == T_IDENTIFIER:
+                    value = self.getVarVal(value.tok, knownVars)
+                    knownVars[found_index][1]=value
+                else:
+                    knownVars[found_index][1]=value
             else:
                 knownVars[found_index][1]= value.tok
 
@@ -164,8 +186,12 @@ class Interpreter:
             printVal = self.getAVStat(expr.value, knownVars)
             print(printVal.tok.value)
         else:
-            printVal = self.getVarVal(expr.value.tok,knownVars)
-            print(printVal)
+            if type(expr.value) == NumberNode:
+                printVal = self.getVarVal(expr.value.tok, knownVars)
+                print(printVal.value)
+            else:
+                printVal = self.getVarVal(expr.value.tok,knownVars)
+                print(printVal)
 
     def ifStat(self, expr, knownVars):
         compexpr = expr.compexpr
