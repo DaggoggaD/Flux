@@ -132,7 +132,6 @@ class Lexer:
                         ArrVal=values[i]
                 new_arr+="]"
                 new_arr=new_arr[0:]
-                print(new_arr)
                 arrVals.append(self.array_finder(new_arr))
             elif ArrVal != ",":
                 if ArrVal == "." and dotn2 == 0:
@@ -209,13 +208,10 @@ class Lexer:
                 elif token in keywords:
                     tokens.append(Token(T_KEYWORD, token))
                 else:
-                    if token[0]=='"':
-                        if token[-1]=='"':
-                            print(tokens)
-                            tokens.append(Token(T_STRING, token))
-                    elif token[0]=='[':
-                        if token[-1]==']':
-                            tokens.append(self.array_finder(token))
+                    if token[0]=='"' and token[-1]=='"':
+                        tokens.append(Token(T_STRING, token))
+                    elif token[0]=='[' and token[-1]==']':
+                        tokens.append(self.array_finder(token))
                     else:
                         #first try handles integers or floats
                         try:
