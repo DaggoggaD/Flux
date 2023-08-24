@@ -14,7 +14,9 @@ class Interpreter:
             elif _token.T_TYPE in (T_IDENTIFIER):
                 for knownVar in knownVars:
                     if knownVar[0].value == _token.value:
-                        return knownVar[1]
+                        if type(knownVar[1])==Token:
+                            return knownVar[1]
+                        return knownVar[1].tok
                 return None
         except:
             if type(_token) in (int, str, float):
@@ -156,7 +158,6 @@ class Interpreter:
                 if value.tok.T_TYPE == T_IDENTIFIER:
                     value = self.getVarVal(value.tok,knownVars)
                     knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value])
-                    print(knownVars)
                 else:
                     knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value])
             else:
@@ -258,7 +259,9 @@ class Interpreter:
             Token:T_ARRAY
         }
         _array = self.getVarVal(expr.array,knownVars)
-        neededvar = _array[self.getVarVal(expr.location, knownVars)]
+        location = self.getVarVal(expr.location, knownVars).value
+        neededvar = _array.value[location]
+
         if type(neededvar) == Token:
             return NumberNode(Token(TOK[type(neededvar)],neededvar.value))
         else:
