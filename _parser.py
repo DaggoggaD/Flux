@@ -266,7 +266,11 @@ class Parser:
                 return Token(T_ERROR)
             self.advance( )
             arr_name = self.currtok
-            self.advance( )
+            """changed"""
+            if arr_name.value == "getAV":
+                arr_name = self.expr()
+            else:
+                self.advance( )
             var_location = self.currtok
             self.advance( )
             if self.currtok.T_TYPE != T_RPAR:

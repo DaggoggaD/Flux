@@ -52,7 +52,8 @@ keywords = [
     "GOE",
     "LOE",
     "NOE",
-    "getAV"
+    "getAV",
+    "setAV"
 ]
 
 operations = [
@@ -282,36 +283,22 @@ class Lexer:
                                         tokens.append(Token(T_STRING,not_known_string.strip('"')))
                                         not_known_string=""
                                     elif not_known_string=='[':
-                                        while idx+1 < len(fullstr) and fullstr[idx+1]!=']':
+                                        opened = 1
+                                        semicolon = False
+                                        while idx+1 < len(fullstr) and (fullstr[idx+1]!=']' or opened != 1):
+                                            if fullstr[idx] == "[":
+                                                opened+=1
+                                            elif fullstr[idx] == "]":
+                                                opened-=1
                                             idx+=1
-                                            not_known_string+=fullstr[idx]
-                                        not_known_string+=']'
-                                        idx+=1
-                                        if not_known_string[0] == '[':
-                                            if not_known_string[-1] == ']':
-                                                values = not_known_string[1:-1]
-                                                arrVals = []
-                                                numv = ""
-                                                dotn2 = 0
-                                                for ArrVal in values:
-                                                    if ArrVal != ",":
-                                                        if ArrVal == "." and dotn2 == 0:
-                                                            dotn2 += 1
-                                                            numv += ArrVal
-                                                        if ArrVal != ".":
-                                                            numv += ArrVal
-                                                    else:
-                                                        dotn2 = 0
-                                                        try:
-                                                            try:
-                                                                arrVals.append(int(numv))
-                                                            except:
-                                                                arrVals.append(float(numv))
-                                                        except:
-                                                            arrVals.append(numv.strip('"'))
-                                                        numv = ""
-                                                tokens.append(Token(T_ARRAY, arrVals))
-
+                                            if fullstr[idx]!=";":
+                                                not_known_string+=fullstr[idx]
+                                            else:
+                                                semicolon=True
+                                        arr = self.array_finder(not_known_string)
+                                        tokens.append(arr)
+                                        if semicolon:
+                                            tokens.append(Token(T_KEYWORD,";"))
                                         not_known_string=""
                                     #handles long keywords
                                     elif not_known_string in keywords:

@@ -189,6 +189,7 @@ class Interpreter:
         else:
             if type(expr.value) == NumberNode:
                 printVal = self.getVarVal(expr.value.tok, knownVars)
+                #When printing arrays of arrays, printval.value is a lst that contains another Token with type array, so it prints it in that form
                 print(printVal.value)
             else:
                 printVal = self.getVarVal(expr.value.tok,knownVars)
@@ -258,7 +259,10 @@ class Interpreter:
             str:T_STRING,
             Token:T_ARRAY
         }
-        _array = self.getVarVal(expr.array,knownVars)
+        if type(expr.array)==GetAVStatement:
+            _array = self.getAVStat(expr.array,knownVars).tok
+        else:
+            _array = self.getVarVal(expr.array, knownVars)
         location = self.getVarVal(expr.location, knownVars).value
         neededvar = _array.value[location]
 
