@@ -154,7 +154,15 @@ class Lexer:
                 ret_str = self.not_known_str
                 self.not_known_str = ""
                 self.found = True
-                return Token(T_KEYWORD, ret_str)
+                if ret_str not in ("GOE","LOE","NOE"):
+                    return Token(T_KEYWORD, ret_str)
+                else:
+                    if ret_str=="GOE":
+                        return Token(T_GOE)
+                    elif ret_str=="LOE":
+                        return Token(T_LOE)
+                    else:
+                        return Token(T_NOTEQUAL)
         return None
 
     def check_id(self):
@@ -185,11 +193,12 @@ class Lexer:
         num = self.not_known_str
         if self.found:
             return None
-        while is_int(num+self.next_char) or is_float(num+self.next_char):
-            num = self.not_known_str
-            self.advance()
-        num=self.not_known_str
 
+        while is_int(num+self.next_char) or is_float(num+self.next_char):
+            self.advance()
+            num=self.not_known_str
+        #try to add if something doesnt work
+        #num=self.not_known_str
         if is_int(num) or is_float(num):
             self.not_known_str = ""
             try:
@@ -293,6 +302,7 @@ class Lexer:
         tokens = []
         while self.file_ended==False:
             self.not_known_str = self.not_known_str.strip()
+            #print(f".{self.not_known_str}.")
             self.found=False
             _kw = self.check_kw()
             _ops = self.check_op()
@@ -303,17 +313,18 @@ class Lexer:
             #done so to be simple to understand
             if _kw:
                 tokens.append(_kw)
-            if _ops:
+            elif _ops:
                 for op in _ops:
                     tokens.append(op)
-            if _num:
+            elif _num:
                 tokens.append(_num)
-            if _arr:
+            elif _arr:
                 tokens.append(_arr)
-            if _str:
+            elif _str:
                 tokens.append(_str)
-            if _id:
+            elif _id:
                 tokens.append(_id)
+
 
             self.advance()
         tokens.append(Token(T_EOF))

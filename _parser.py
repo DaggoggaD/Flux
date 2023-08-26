@@ -80,6 +80,13 @@ class GetAVStatement:
     def __repr__(self):
         return f"(getAV: {self.array}[{self.location}])"
 
+class SetAVStatement:
+    def __init__(self, array, location, value):
+        self.array = array
+        self.location = location
+        self.value = value
+    def __repr__(self):
+        return f"(setAV: {self.array}[{self.location}] -> {self.value})"
 
 class Parser:
     def __init__(self, tokens):
@@ -229,7 +236,7 @@ class Parser:
             self.advance( )
             compare_expression = self.expr( )
             if self.currtok.T_TYPE != T_RPAR:
-                print("Required ')' after if statement")
+                print("Required ')' after while statement")
                 return Token(T_ERROR)
             self.advance( )
             if self.currtok.T_TYPE != T_LGPAR:
@@ -254,7 +261,7 @@ class Parser:
             self.advance( )
             print_value = self.expr( )
             if self.currtok.T_TYPE != T_RPAR:
-                print("Required ')' after if statement")
+                print("Required ')' after print statement")
                 return Token(T_ERROR)
             self.advance( )
             return PrintStatement(print_value)
@@ -274,10 +281,28 @@ class Parser:
             var_location = self.currtok
             self.advance( )
             if self.currtok.T_TYPE != T_RPAR:
-                print("Required ')' after if statement")
+                print("Required ')' after getAV statement")
                 return Token(T_ERROR)
             self.advance( )
             return GetAVStatement(arr_name, var_location)
+        # SETAV STATEMENT
+        if self.currtok.matches(T_KEYWORD, "setAV"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after setAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            arr_name = self.currtok
+            self.advance( )
+            var_location = self.currtok
+            self.advance( )
+            s_a_value = self.currtok
+            self.advance()
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after setAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return SetAVStatement(arr_name, var_location, s_a_value)
         # FUNCTION STATEMENT#
         if self.currtok.matches(T_KEYWORD, "func"):
             self.advance( )

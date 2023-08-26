@@ -214,6 +214,9 @@ class Interpreter:
                     self.funcStat(lineExpr, knownVars)
                 elif type(lineExpr) == GetAVStatement:
                     self.getAVStat(lineExpr, knownVars)
+                elif type(lineExpr) == SetAVStatement:
+                    self.setAVStat(lineExpr, knownVars)
+
 
     def whileStat(self, expr, knownVars):
         compexpr = expr.compexpr
@@ -235,6 +238,8 @@ class Interpreter:
                     self.funcStat(lineExpr, knownVars)
                 elif type(lineExpr) == GetAVStatement:
                     self.getAVStat(lineExpr, knownVars)
+                elif type(lineExpr) == SetAVStatement:
+                    self.setAVStat(lineExpr, knownVars)
     #NEEDS TO BE IMPLEMENTED
     def elseStat(self, expr, knownVars):
         elsexpr = expr.expression
@@ -270,6 +275,26 @@ class Interpreter:
         else:
             return NumberNode(Token(TOK[type(neededvar)],neededvar))
 
+    def find_var_by_name(self, name, knownVars):
+        for var in knownVars:
+            if var[0].value == name.value:
+                return knownVars.index(var)
+
+
+    def setAVStat(self, expr,knownVars):
+
+        TOK = {
+            int:T_INT,
+            float:T_FLOAT,
+            str:T_STRING,
+            Token:T_ARRAY
+        }
+        _array_name = Token(T_IDENTIFIER, expr.array.value)
+        _location = self.getVarVal(expr.location, knownVars).value
+        _value = self.getVarVal(expr.value, knownVars).value
+        index = self.find_var_by_name(_array_name,knownVars)
+        knownVars[index][1].tok.value[_location]=_value
+
     def initialize(self, filename):
         C_Lexer = _lexerOLD.Lexer()
         C_Lexer.RUN_lexer(filename)
@@ -300,6 +325,8 @@ class Interpreter:
                 self.funcStat(lineExpr,knownVars)
             elif type(lineExpr) == GetAVStatement:
                 self.getAVStat(lineExpr,knownVars)
+            elif type(lineExpr) == SetAVStatement:
+                self.setAVStat(lineExpr,knownVars)
 
 """EXAMPLE OF A GLOBALVAR FORMAT
 _Interpreter.globalvars.append([Token(T_IDENTIFIER,"TESTVAR"),Token(T_INT,int(1))])
