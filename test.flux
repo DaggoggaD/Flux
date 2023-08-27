@@ -24,7 +24,7 @@ store media_totale = somma_media_totale/5;
 print("___________________________________________");
 print("media_totale:");
 print(media_totale);
-if(media_totale > 6){
+if(media_totale GOE 6){
     print("alunno_ammesso_al_successivo_anno_scolastico");
 }
 if(media_totale < 6){
