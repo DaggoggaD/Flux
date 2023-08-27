@@ -1,11 +1,14 @@
-# Flux v0.1
+# Flux v0.2
 Interpreted (tree-walking) programming language Flux written in Python.
+
+* **New features: booleans, setAV, nested getAV, re-written _lexer.py**
+
 ## Current state of progress
 #### Early submission of flux. 
 
 ### Implemented features (grammar rules described later):
 * Binary operations
-* Variables (int, string, float, lists)
+* Variables (int, string, float, lists, booleans)
 * Print statement
 * While
 * If
@@ -14,7 +17,6 @@ Interpreted (tree-walking) programming language Flux written in Python.
 
 ### WIP/planned features:
 
-* Booleans
 * Else
 * Functions
 * User input
