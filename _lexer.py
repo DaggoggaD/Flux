@@ -6,6 +6,7 @@ T_INT = "INT"
 T_FLOAT = "FLOAT"
 T_STRING = "STRING"
 T_ARRAY = "ARRAY"
+T_BOOLEAN = "BOOL"
 T_PLUS = "PLUS"
 T_MINUS = "MINUS"
 T_MUL = "MUL"
@@ -46,7 +47,9 @@ keywords = [
     "LOE",
     "NOE",
     "getAV",
-    "setAV"
+    "setAV",
+    "TRUE",
+    "FALSE"
 ]
 
 operations = [
@@ -154,13 +157,17 @@ class Lexer:
                 ret_str = self.not_known_str
                 self.not_known_str = ""
                 self.found = True
-                if ret_str not in ("GOE","LOE","NOE"):
+                if ret_str not in ("GOE","LOE","NOE","TRUE","FALSE"):
                     return Token(T_KEYWORD, ret_str)
                 else:
                     if ret_str=="GOE":
                         return Token(T_GOE)
                     elif ret_str=="LOE":
                         return Token(T_LOE)
+                    elif ret_str == "TRUE":
+                        return Token(T_INT, 1)
+                    elif ret_str == "FALSE":
+                        return Token(T_INT, 0)
                     else:
                         return Token(T_NOTEQUAL)
         return None
