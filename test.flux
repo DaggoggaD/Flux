@@ -1,41 +1,36 @@
-func sqrt(x){
-    store res = "NONE";
-	if(x=0){
-		store res = x;
-	}
-	if(x=1){
-		store res = x;
-	}
-	if(x NOE 0){
-		if(x NOE 1){
-			store start = 0;
-			store end = x*1;
-			store ans = 0;
-			while(start LOE end){
-				store mid = start + end;
-				store mid = mid/2;
-				if(mid*mid =x){
-					store res = mid;
-					store start = end + 1;
-				}
-				if(mid*mid < x){
-					store start = mid + 1;
-					store ans = mid*1;
-				}
-				if(mid*mid > x){
-					store end = mid - 1;
-				}
+func abs(abs_x){
+    if(abs_x GOE 0){
+        return abs_x;
+    }
+    if(abs_x < 0){
+        store res = 0-1;
+        store res = res*abs_x;
+        return res;
+    }
 
-			}
-			if(res NOE "NONE"){
-			    if(ans NOE 0){
-                    print(res);
-                    store res = ans;
-                }
-			}
-		}
-	}
-	return res;
 }
-store res = sqrt(5);
-print(res);
+
+func sqrt(sqrt_x){
+    store delta = 0.001;
+    store iteration_count = 0;
+    store result = sqrt_x/2;
+
+    store absval = result*result - sqrt_x;
+    store absval = abs(absval);
+    while(absval GOE delta){
+        print(result);
+        print(absval);
+        store result_sq = result*result;
+        store result_sq = result_sq - sqrt_x;
+        store result_sq = result_sq/2;
+        store result = result - result_sq/result;
+
+        store absval = result*result;
+        store absval = absval - sqrt_x;
+        store absval = abs(absval);
+    }
+    return result;
+}
+
+store sqrt_res = sqrt(16);
+print(sqrt_res);

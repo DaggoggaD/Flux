@@ -209,7 +209,7 @@ class Interpreter:
         compexpr = expr.compexpr
         ifexpr = expr.expression
         binOpResults = []
-        returned = False
+        FUNCRES = None
         if self.binop(compexpr, knownFunc, knownVars).tok.T_TYPE==T_TRUE:
             for lineExpr in ifexpr:
                 if type(lineExpr) == BinOP:
@@ -219,9 +219,9 @@ class Interpreter:
                 elif type(lineExpr) == PrintStatement:
                     self.printStat(lineExpr, knownFunc, knownVars)
                 elif type(lineExpr) == IfStatement:
-                    self.ifStat(lineExpr, knownFunc, knownVars)
+                    FUNCRES = self.ifStat(lineExpr, knownFunc, knownVars)
                 elif type(lineExpr) == WhileStatement:
-                    self.whileStat(lineExpr, knownFunc, knownVars)
+                    FUNCRES = self.whileStat(lineExpr, knownFunc, knownVars)
                 elif type(lineExpr) == FuncStatement:
                     self.funcStat(lineExpr, knownFunc)
                 elif type(lineExpr) == GetAVStatement:
@@ -229,29 +229,31 @@ class Interpreter:
                 elif type(lineExpr) == SetAVStatement:
                     self.setAVStat(lineExpr, knownVars)
                 elif type(lineExpr) == ReturnStatement:
-                    print(self.returnStat(lineExpr, knownVars))
-                    break
+                    return self.returnStat(lineExpr, knownVars)
                 elif type(lineExpr) == RunFuncStatement:
                     print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
 
+                if FUNCRES!=None:
+                    return FUNCRES
 
     def whileStat(self, expr, knownFunc, knownVars):
         compexpr = expr.compexpr
         ifexpr = expr.expression
         binOpResults = []
         returned = False
+        FUNCRES = None
         while self.binop(compexpr, knownFunc,knownVars).tok.T_TYPE == T_TRUE and returned==False:
             for lineExpr in ifexpr:
                 if type(lineExpr) == BinOP:
-                    binOpResults.append(self.binop(lineExpr, knownVars))
+                    binOpResults.append(self.binop(lineExpr, knownFunc,knownVars))
                 elif type(lineExpr) == VarAssignNode:
                     self.storevar(lineExpr, knownFunc, knownVars)
                 elif type(lineExpr) == PrintStatement:
                     self.printStat(lineExpr, knownFunc, knownVars)
                 elif type(lineExpr) == IfStatement:
-                    self.ifStat(lineExpr, knownFunc, knownVars)
+                    FUNCRES = self.ifStat(lineExpr, knownFunc, knownVars)
                 elif type(lineExpr) == WhileStatement:
-                    self.whileStat(lineExpr, knownFunc, knownVars)
+                    FUNCRES = self.whileStat(lineExpr, knownFunc, knownVars)
                 elif type(lineExpr) == FuncStatement:
                     self.funcStat(lineExpr, knownFunc)
                 elif type(lineExpr) == GetAVStatement:
@@ -259,9 +261,12 @@ class Interpreter:
                 elif type(lineExpr) == SetAVStatement:
                     self.setAVStat(lineExpr, knownVars)
                 elif type(lineExpr) == ReturnStatement:
-                    print(self.returnStat(lineExpr, knownVars))
+                    return self.returnStat(lineExpr, knownVars)
                 elif type(lineExpr) == RunFuncStatement:
                     print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
+
+                if FUNCRES!=None:
+                    return FUNCRES
 
     #NEEDS TO BE IMPLEMENTED
     def elseStat(self, expr, knownVars):
@@ -372,9 +377,9 @@ class Interpreter:
             elif type(lineExpr) == PrintStatement:
                 self.printStat(lineExpr, knownFunc, FUNCKW)
             elif type(lineExpr) == IfStatement:
-                self.ifStat(lineExpr, knownFunc, FUNCKW)
+                FUNCRES = self.ifStat(lineExpr, knownFunc, FUNCKW)
             elif type(lineExpr) == WhileStatement:
-                self.whileStat(lineExpr, knownFunc, FUNCKW)
+                FUNCRES = self.whileStat(lineExpr, knownFunc, FUNCKW)
             elif type(lineExpr) == FuncStatement:
                 self.funcStat(lineExpr, FUNCKW)
             elif type(lineExpr) == GetAVStatement:
@@ -384,22 +389,32 @@ class Interpreter:
             elif type(lineExpr) == ReturnStatement:
                 FUNCRES = self.returnStat(lineExpr,FUNCKW)
             elif type(lineExpr) == RunFuncStatement:
-                print(self.runFuncStatement(lineExpr, knownFunc, FUNCKW))
+                self.runFuncStatement(lineExpr, knownFunc, FUNCKW)
+            if FUNCRES!=None:
+                break
 
         return FUNCRES
 
     def initialize(self, filename):
+        #old lexer
         C_Lexer = _lexerOLD.Lexer()
         C_Lexer.RUN_lexer(filename)
-        print(C_Lexer.tokens)
+        #new lexer
         Lex = Lexer(filename)
         Lex.RUN( )
-
+        #parser
         C_Parser = Parser(Lex.tokens)
         C_expressions = C_Parser.run()
-        print(C_Parser.tokens)
-        print(C_expressions)
+
+        #debug mode (shows tokens and parse_result)
+        debug_mode = True
+        if debug_mode == True:
+            print(C_Lexer.tokens)
+            print(C_Parser.tokens)
+            print(C_expressions)
         return C_expressions
+
+
 
     def RUN(self):
         knownVars = []
