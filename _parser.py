@@ -69,8 +69,15 @@ class FuncStatement:
         self.expression = expression
 
     def __repr__(self):
-        return f"(func arguments{self.arguments}: {self.expression})"
+        return f"(func {self.funcnametok}({self.arguments}): {self.expression})"
 
+class RunFuncStatement:
+    def __init__(self, funcnametok, arguments):
+        self.funcnametok = funcnametok
+        self.arguments = arguments
+
+    def __repr__(self):
+        return f"(run func: {self.funcnametok}({self.arguments}))"
 
 class GetAVStatement:
     def __init__(self, array, location):
@@ -87,6 +94,13 @@ class SetAVStatement:
         self.value = value
     def __repr__(self):
         return f"(setAV: {self.array}[{self.location}] -> {self.value})"
+
+class ReturnStatement:
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return f"(returnTOK: {self.value})"
 
 class Parser:
     def __init__(self, tokens):
@@ -149,6 +163,24 @@ class Parser:
         return ending_expr
 
     def expr(self):
+        # RUN FUNCTION
+        if self.currtok.T_TYPE==T_IDENTIFIER:
+            if self.tokidx+1<len(self.tokens) and self.tokens[self.tokidx+1].T_TYPE==T_LPAR:
+                func_name = self.currtok
+                self.advance()
+                self.advance()
+                arguments = []
+                while self.currtok.T_TYPE != T_RPAR:
+                    arguments.append(self.expr( ))
+                if self.currtok.T_TYPE!=T_RPAR:
+                    print("Missing ')' after function call")
+                    return Token(T_ERROR)
+                self.advance()
+                return RunFuncStatement(func_name, arguments)
+                """if self.currtok.matches(T_KEYWORD, ";"):
+                    
+                else:
+                    print("Missing ';' after function call")"""
         # VARIABLE ASSIGNMENT
         if self.currtok.matches(T_KEYWORD, "store"):
             self.advance( )
@@ -303,7 +335,7 @@ class Parser:
                 return Token(T_ERROR)
             self.advance( )
             return SetAVStatement(arr_name, var_location, s_a_value)
-        # FUNCTION STATEMENT#
+        # FUNCTION STATEMENT
         if self.currtok.matches(T_KEYWORD, "func"):
             self.advance( )
             if self.currtok.T_TYPE != T_IDENTIFIER:
@@ -318,7 +350,6 @@ class Parser:
             arguments = []
             while self.currtok.T_TYPE != T_RPAR:
                 arguments.append(self.expr( ))
-                self.advance( )
             self.advance( )
             if self.currtok.T_TYPE != T_LGPAR:
                 print("Required '{' at if opening")
@@ -335,6 +366,14 @@ class Parser:
             self.recentlyEndedIf = False
             """NEEDS TO COMPLETE ARGUMENTS (, DOESNT WORK"""
             return FuncStatement(func_name_token, arguments, expressions)
+        # RETURN STATEMENT
+        if self.currtok.matches(T_KEYWORD, "return"):
+            self.advance()
+            return_val = self.currtok
+            self.advance()
+            if self.currtok.matches(T_KEYWORD,";"):
+                return ReturnStatement(return_val)
+
         # MATH OPERATIONS
         left = self.term( )
         while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):

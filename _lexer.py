@@ -49,7 +49,8 @@ keywords = [
     "getAV",
     "setAV",
     "TRUE",
-    "FALSE"
+    "FALSE",
+    "return"
 ]
 
 operations = [
