@@ -18,8 +18,6 @@ func sqrt(sqrt_x){
     store absval = result*result - sqrt_x;
     store absval = abs(absval);
     while(absval GOE delta){
-        print(result);
-        print(absval);
         store result_sq = result*result;
         store result_sq = result_sq - sqrt_x;
         store result_sq = result_sq/2;
@@ -32,5 +30,23 @@ func sqrt(sqrt_x){
     return result;
 }
 
-store sqrt_res = sqrt(16);
-print(sqrt_res);
+func pow(base power){
+    store res = 1;
+    store i = 0;
+    if(power GOE 0){
+        while(i<power){
+            store res = res*base;
+            store i = i + 1;
+        }
+    }
+    if(power < 0){
+        store normres = 1;
+        while(i>power){
+            store normres = normres*base;
+            store i = i - 1;
+        }
+        store res = 1/normres;
+    }
+    return res;
+}
+

@@ -342,7 +342,7 @@ class Interpreter:
         FUNC = None
         ARGS = []
         FUNCRES = None
-        FUNCKW = knownVars
+        FUNCKW = []
         for func in knownFunc:
             currf = func[0]
             if currf.value == nametok.value:
