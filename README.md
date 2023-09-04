@@ -18,14 +18,14 @@ Interpreted (tree-walking) programming language Flux written in Python.
 
 ### WIP/planned features:
 
-* Else
-* User input
-* Errors
 * Type conversion (int -> float, int -> string ... )
+* User input
+* Import
+* Else
+* Errors
 * Switch
 * Break, Next, Try, Catch
 * Classes
-* Import
 * Python modules accessibility (?)
 
 ## Issues
