@@ -1,7 +1,7 @@
 # Flux v0.2
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: booleans, setAV, nested getAV, re-written _lexer, functions.**
+* **New features: booleans, setAV, nested getAV, array append, functions, re-written _lexer.**
 
 ## Current state of progress
 #### Early submission of flux. 
