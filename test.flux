@@ -1,32 +1,68 @@
-store voti = [[6,8,7,9,8,6.25,7,],[7,7,7.5,6.5,7,6,7.5,],[9,9,9,8,8.5,7.5,8,],[7,7.5,7.75,8.25,8.5,7,7.5,],[7,7.5,7.75,8,8.75,6.76,7,],];
-store i = 0;
-store somma_media_totale = 0;
-store media_totale = 0;
-while(i < 5){
-    store curr_subj = getAV(voti i);
-    store somma = 0;
-    store media = 0;
-    store n = 0;
-    while(n<7){
-        store curr_voto = getAV(curr_subj n);
-        store somma = somma + curr_voto;
-        store n = n + 1;
+func abs(abs_x){
+    if(abs_x GOE 0){
+        return abs_x;
     }
-    store media = somma / 7;
-    print("materia_successiva:");
-    print(somma);
-    print(media);
-    store i = i + 1;
-    store somma_media_totale = somma_media_totale + media;
+    if(abs_x < 0){
+        store res = 0-1;
+        store res = res*abs_x;
+        return res;
+    }
+
 }
-store media_totale = somma_media_totale/5;
-print("___________________________________________");
-print("media_totale:")
-print(media_totale);
-if(media_totale GOE 6){
-    print("alunno_ammesso_al_successivo_anno_scolastico");
+
+func sqrt(sqrt_x){
+    store delta = 0.001;
+    store iteration_count = 0;
+    store result = sqrt_x/2;
+
+    store absval = result*result - sqrt_x;
+    store absval = abs(absval);
+    while(absval GOE delta){
+        store result_sq = result*result;
+        store result_sq = result_sq - sqrt_x;
+        store result_sq = result_sq/2;
+        store result = result - result_sq/result;
+
+        store absval = result*result;
+        store absval = absval - sqrt_x;
+        store absval = abs(absval);
+    }
+    return result;
 }
-if(media_totale < 6){
-    print("alunno_non_ammesso_al_successivo_anno_scolastico");
+
+func pow(base power){
+    store res = 1;
+    store i = 0;
+    if(power GOE 0){
+        while(i<power){
+            store res = res*base;
+            store i = i + 1;
+        }
+    }
+    if(power < 0){
+        store normres = 1;
+        while(i>power){
+            store normres = normres*base;
+            store i = i - 1;
+        }
+        store res = 1/normres;
+    }
+    return res;
 }
-print("___________________________________________");
+
+func factorial(x){
+    store i = 1;
+    store res = 1;
+    while(i LOE x){
+        store res = res*i;
+        store i = i + 1;
+    }
+    return res;
+}
+
+store arr = [1,2,3,4,5,];
+store res = 2;
+if(1>0){
+    append(arr res);
+    print(arr);
+}

@@ -1,5 +1,5 @@
+#
 from _lexer import *
-
 
 class NumberNode:
     def __init__(self, tok):
@@ -69,8 +69,15 @@ class FuncStatement:
         self.expression = expression
 
     def __repr__(self):
-        return f"(func arguments{self.arguments}: {self.expression})"
+        return f"(func {self.funcnametok}({self.arguments}): {self.expression})"
 
+class RunFuncStatement:
+    def __init__(self, funcnametok, arguments):
+        self.funcnametok = funcnametok
+        self.arguments = arguments
+
+    def __repr__(self):
+        return f"(run func: {self.funcnametok}({self.arguments}))"
 
 class GetAVStatement:
     def __init__(self, array, location):
@@ -80,6 +87,28 @@ class GetAVStatement:
     def __repr__(self):
         return f"(getAV: {self.array}[{self.location}])"
 
+class SetAVStatement:
+    def __init__(self, array, location, value):
+        self.array = array
+        self.location = location
+        self.value = value
+    def __repr__(self):
+        return f"(setAV: {self.array}[{self.location}] -> {self.value})"
+
+class ReturnStatement:
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return f"(returnTOK: {self.value})"
+
+class AppendStatement:
+    def __init__(self, array, value):
+        self.array = array
+        self.value = value
+
+    def __repr__(self):
+        return f"(append: {self.array} -> {self.value})"
 
 class Parser:
     def __init__(self, tokens):
@@ -142,6 +171,24 @@ class Parser:
         return ending_expr
 
     def expr(self):
+        # RUN FUNCTION
+        if self.currtok.T_TYPE==T_IDENTIFIER:
+            if self.tokidx+1<len(self.tokens) and self.tokens[self.tokidx+1].T_TYPE==T_LPAR:
+                func_name = self.currtok
+                self.advance()
+                self.advance()
+                arguments = []
+                while self.currtok.T_TYPE != T_RPAR:
+                    arguments.append(self.expr( ))
+                if self.currtok.T_TYPE!=T_RPAR:
+                    print("Missing ')' after function call")
+                    return Token(T_ERROR)
+                self.advance()
+                return RunFuncStatement(func_name, arguments)
+                """if self.currtok.matches(T_KEYWORD, ";"):
+                    
+                else:
+                    print("Missing ';' after function call")"""
         # VARIABLE ASSIGNMENT
         if self.currtok.matches(T_KEYWORD, "store"):
             self.advance( )
@@ -229,7 +276,7 @@ class Parser:
             self.advance( )
             compare_expression = self.expr( )
             if self.currtok.T_TYPE != T_RPAR:
-                print("Required ')' after if statement")
+                print("Required ')' after while statement")
                 return Token(T_ERROR)
             self.advance( )
             if self.currtok.T_TYPE != T_LGPAR:
@@ -254,7 +301,7 @@ class Parser:
             self.advance( )
             print_value = self.expr( )
             if self.currtok.T_TYPE != T_RPAR:
-                print("Required ')' after if statement")
+                print("Required ')' after print statement")
                 return Token(T_ERROR)
             self.advance( )
             return PrintStatement(print_value)
@@ -274,11 +321,29 @@ class Parser:
             var_location = self.currtok
             self.advance( )
             if self.currtok.T_TYPE != T_RPAR:
-                print("Required ')' after if statement")
+                print("Required ')' after getAV statement")
                 return Token(T_ERROR)
             self.advance( )
             return GetAVStatement(arr_name, var_location)
-        # FUNCTION STATEMENT#
+        # SETAV STATEMENT
+        if self.currtok.matches(T_KEYWORD, "setAV"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after setAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            arr_name = self.currtok
+            self.advance( )
+            var_location = self.currtok
+            self.advance( )
+            s_a_value = self.currtok
+            self.advance()
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after setAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return SetAVStatement(arr_name, var_location, s_a_value)
+        # FUNCTION STATEMENT
         if self.currtok.matches(T_KEYWORD, "func"):
             self.advance( )
             if self.currtok.T_TYPE != T_IDENTIFIER:
@@ -293,7 +358,6 @@ class Parser:
             arguments = []
             while self.currtok.T_TYPE != T_RPAR:
                 arguments.append(self.expr( ))
-                self.advance( )
             self.advance( )
             if self.currtok.T_TYPE != T_LGPAR:
                 print("Required '{' at if opening")
@@ -310,6 +374,30 @@ class Parser:
             self.recentlyEndedIf = False
             """NEEDS TO COMPLETE ARGUMENTS (, DOESNT WORK"""
             return FuncStatement(func_name_token, arguments, expressions)
+        # RETURN STATEMENT
+        if self.currtok.matches(T_KEYWORD, "return"):
+            self.advance()
+            return_val = self.currtok
+            self.advance()
+            if self.currtok.matches(T_KEYWORD,";"):
+                return ReturnStatement(return_val)
+        #APPEND STATEMENT
+        if self.currtok.matches(T_KEYWORD, "append"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after append statement")
+                return Token(T_ERROR)
+            self.advance( )
+            arr_name = self.currtok
+            self.advance( )
+            s_a_value = self.currtok
+            self.advance()
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after setAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return AppendStatement(arr_name, s_a_value)
+
         # MATH OPERATIONS
         left = self.term( )
         while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
