@@ -15,10 +15,10 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Array set value
 * Array get value
 * Functions
+* Append array
 
 ### WIP/planned features:
 
-* Append array
 * Type conversion (int -> float, int -> string ... )
 * User input
 * Import
@@ -30,7 +30,7 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Python modules accessibility (?)
 
 ## Issues
-At the moment errors are poorly controlled and have no in-line info. A new system must be created handling errors in a more abstract manner.
+At the moment errors are poorly controlled and have no in-line info. A new system must be created handling errors more abstractly.
 
 ## Language grammar
 * binary operations:
@@ -47,9 +47,10 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
     ...
     store NAME = "nautilus";
     ```
-  * Array values: to create an array you initialize the variable, and than assign it an array: `store ARRAY = [VALUE, VALUE, VALUES...,];`. At the last index of the array, you must add a `,` like so: `store ARRAY = [1,[1.1,1.2,1.3,],2,3,];`.
+  * Array values: to create an array you initialize the variable, and then assign it an array: `store ARRAY = [VALUE, VALUE, VALUES...,];`. At the last index of the array, you must add a `,` like so: `store ARRAY = [1,[1.1,1.2,1.3,],2,3,];`.
       * Array get value: `getAV(NAME INDEX);`. **CAN be nested**
       * Array set value: `setAV(NAME INDEX VALUE);` **CAN'T BE NESTED**
+      * Arrat append value: `append(NAME VALUE)` **CAN'T BE NESTED**
   * `+= -= *= /= %=` are not supported and you'll need to use a "recursive" formula:
     ```
     store i = 0;
