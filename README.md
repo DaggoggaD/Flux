@@ -1,7 +1,7 @@
 # Flux v0.2
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: booleans, setAV, nested getAV, array append, functions, re-written _lexer.**
+* **New features: booleans, setAV, nested getAV, array append, functions, random, randint, re-written _lexer.**
 
 ## Current state of progress
 #### Early submission of flux. 
@@ -16,10 +16,10 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Array get value
 * Functions
 * Append array
+* Random values (int, float)
 
 ### WIP/planned features:
 
-* Random values (int, float)
 * Type conversion (int -> float, int -> string ... )
 * User input
 * Import
@@ -78,5 +78,8 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
     sum(1 2);
     ```
     Where the second sum doesn't show in the console
+* random values:
+  * random float: `random();` -> returns float between 0 and 1.
+  * random int: `randint(START END);` -> returns int between START and END.
  # Other Infos
 All grammar info will be updated as feature gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
