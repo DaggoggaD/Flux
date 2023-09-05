@@ -102,6 +102,14 @@ class ReturnStatement:
     def __repr__(self):
         return f"(returnTOK: {self.value})"
 
+class AppendStatement:
+    def __init__(self, array, value):
+        self.array = array
+        self.value = value
+
+    def __repr__(self):
+        return f"(append: {self.array} -> {self.value})"
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -373,6 +381,22 @@ class Parser:
             self.advance()
             if self.currtok.matches(T_KEYWORD,";"):
                 return ReturnStatement(return_val)
+        #APPEND STATEMENT
+        if self.currtok.matches(T_KEYWORD, "append"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after append statement")
+                return Token(T_ERROR)
+            self.advance( )
+            arr_name = self.currtok
+            self.advance( )
+            s_a_value = self.currtok
+            self.advance()
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after setAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return AppendStatement(arr_name, s_a_value)
 
         # MATH OPERATIONS
         left = self.term( )

@@ -50,7 +50,8 @@ keywords = [
     "setAV",
     "TRUE",
     "FALSE",
-    "return"
+    "return",
+    "append"
 ]
 
 operations = [

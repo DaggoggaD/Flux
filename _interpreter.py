@@ -188,7 +188,7 @@ class Interpreter:
 
     def printStat(self,expr, knownFunc, knownVars):
         if type(expr.value)==BinOP:
-            printVal = self.binop(expr.value,knownVars)
+            printVal = self.binop(expr.value,knownFunc,knownVars)
             print(printVal.tok.value)
         elif type(expr.value) == GetAVStatement:
             printVal = self.getAVStat(expr.value, knownVars)
@@ -213,7 +213,7 @@ class Interpreter:
         if self.binop(compexpr, knownFunc, knownVars).tok.T_TYPE==T_TRUE:
             for lineExpr in ifexpr:
                 if type(lineExpr) == BinOP:
-                    binOpResults.append(self.binop(lineExpr, knownVars))
+                    binOpResults.append(self.binop(lineExpr, knownFunc,knownVars))
                 elif type(lineExpr) == VarAssignNode:
                     self.storevar(lineExpr, knownFunc, knownVars)
                 elif type(lineExpr) == PrintStatement:
@@ -232,6 +232,8 @@ class Interpreter:
                     return self.returnStat(lineExpr, knownVars)
                 elif type(lineExpr) == RunFuncStatement:
                     print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
+                elif type(lineExpr) == AppendStatement:
+                    self.appendStat(lineExpr, knownVars)
 
                 if FUNCRES!=None:
                     return FUNCRES
@@ -264,6 +266,8 @@ class Interpreter:
                     return self.returnStat(lineExpr, knownVars)
                 elif type(lineExpr) == RunFuncStatement:
                     print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
+                elif type(lineExpr) == AppendStatement:
+                    self.appendStat(lineExpr, knownVars)
 
                 if FUNCRES!=None:
                     return FUNCRES
@@ -357,6 +361,7 @@ class Interpreter:
             elif arg.T_TYPE in (T_INT,T_STRING,T_FLOAT,T_BOOLEAN):
                 ARGS.append(arg.value)
             else:
+                argtok = arg
                 ARGS.append(self.getVarVal(argtok, knownVars))
 
         for arg in FUNC[1]:
@@ -390,10 +395,24 @@ class Interpreter:
                 FUNCRES = self.returnStat(lineExpr,FUNCKW)
             elif type(lineExpr) == RunFuncStatement:
                 self.runFuncStatement(lineExpr, knownFunc, FUNCKW)
+            elif type(lineExpr) == AppendStatement:
+                self.appendStat(lineExpr,FUNCKW)
             if FUNCRES!=None:
                 break
 
         return FUNCRES
+
+    def appendStat(self, expr,knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            str: T_STRING,
+            Token: T_ARRAY
+        }
+        _array_name = Token(T_IDENTIFIER, expr.array.value)
+        _value = self.getVarVal(expr.value, knownVars).value
+        index = self.find_var_by_name(_array_name, knownVars)
+        knownVars[index][1].tok.value.append(_value)
 
     def initialize(self, filename):
         #old lexer
@@ -413,8 +432,6 @@ class Interpreter:
             print(C_Parser.tokens)
             print(C_expressions)
         return C_expressions
-
-
 
     def RUN(self):
         knownVars = []
@@ -440,6 +457,8 @@ class Interpreter:
                 print(self.returnStat(lineExpr,knownVars))
             elif type(lineExpr) == RunFuncStatement:
                 print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
+            elif type(lineExpr) == AppendStatement:
+                self.appendStat(lineExpr,knownVars)
 
 """EXAMPLE OF A GLOBALVAR FORMAT
 _Interpreter.globalvars.append([Token(T_IDENTIFIER,"TESTVAR"),Token(T_INT,int(1))])

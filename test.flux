@@ -50,3 +50,19 @@ func pow(base power){
     return res;
 }
 
+func factorial(x){
+    store i = 1;
+    store res = 1;
+    while(i LOE x){
+        store res = res*i;
+        store i = i + 1;
+    }
+    return res;
+}
+
+store arr = [1,2,3,4,5,];
+store res = 2;
+if(1>0){
+    append(arr res);
+    print(arr);
+}
