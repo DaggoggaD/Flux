@@ -51,7 +51,9 @@ keywords = [
     "TRUE",
     "FALSE",
     "return",
-    "append"
+    "append",
+    "random",
+    "randint"
 ]
 
 operations = [

@@ -1,4 +1,4 @@
-#
+import random
 from _lexer import *
 
 class NumberNode:
@@ -110,6 +110,22 @@ class AppendStatement:
     def __repr__(self):
         return f"(append: {self.array} -> {self.value})"
 
+class RandIntStatement:
+    def __init__(self, min_val, max_val):
+        self.min_val = min_val
+        self.max_val = max_val
+
+    def __repr__(self):
+        return f"(randint: ({self.min_val} - {self.max_val}))"
+
+class RandomStatement:
+    def __init__(self):
+        self.value = None
+
+    def __repr__(self):
+        return f"(random: ({self.value}))"
+
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -201,6 +217,7 @@ class Parser:
                 print("Expected equals after variable declaration")
                 return Token(T_ERROR)
             self.advance( )
+            #checks if expr is valid. if not, tryes to complete it with next info
             expr = self.expr( )
             oldexpr = expr
             if type(expr) == GetAVStatement:
@@ -210,9 +227,16 @@ class Parser:
                 else:
                     expr = oldexpr
 
-                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
                     expr = self.expr( )
-
+            elif self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+                expr = self.expr()
+                if expr!=None:
+                    expr = self.leftest_expression_modifier(expr, oldexpr)
+                else:
+                    expr = oldexpr
+                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+                    expr = self.expr( )
             self.advance( )
             if self.currtok.T_TYPE == T_NEWLINE or self.currtok.T_TYPE == T_RPAR:
                 self.recentlyEndedIf = False
@@ -397,10 +421,45 @@ class Parser:
                 return Token(T_ERROR)
             self.advance( )
             return AppendStatement(arr_name, s_a_value)
-
+        #RANDOM FLOAT 0-1
+        if self.currtok.matches(T_KEYWORD, "random"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after random statement")
+                return Token(T_ERROR)
+            self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after getAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return RandomStatement()
+            """
+            tok = Token(T_FLOAT, random.random())
+            return NumberNode(tok)
+            """
+        #RANDOM INT X - Y
+        if self.currtok.matches(T_KEYWORD, "randint"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after random statement")
+                return Token(T_ERROR)
+            self.advance( )
+            min_val = self.currtok
+            self.advance( )
+            max_val = self.currtok
+            self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after setAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return RandIntStatement(min_val, max_val)
+            """
+            tok = Token(T_INT, random.randint(min_val.value, max_val.value))
+            return NumberNode(tok)
+            """
         # MATH OPERATIONS
         left = self.term( )
-        while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+        while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
             op_token = self.currtok
             self.advance( )
             right = None

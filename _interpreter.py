@@ -1,5 +1,9 @@
+import random
+import copy
 from _parser import *
 import _lexerOLD
+
+
 class Interpreter:
     def __init__(self, filename):
         self.filename = filename
@@ -29,6 +33,7 @@ class Interpreter:
         left = expr.left
         op = expr.op
         right = expr.right
+
         if type(left) == BinOP:
             left = self.binop(left, knownFunc,knownVars)
         if type(right) == BinOP:
@@ -41,6 +46,14 @@ class Interpreter:
             left = NumberNode(self.runFuncStatement(left, knownFunc, knownVars))
         if type(right) == RunFuncStatement:
             right = NumberNode(self.runFuncStatement(right, knownFunc, knownVars))
+        if type(left) == RandomStatement:
+            left = self.randStatement()
+        if type(right) == RandomStatement:
+            right = self.randStatement()
+        if type(left) == RandIntStatement:
+            left = self.randIntStatement(left, knownVars)
+        if type(right) == RandomStatement:
+            right = self.randIntStatement(right, knownVars)
 
         opl = self.getVarVal(left.tok, knownVars)
         opr = self.getVarVal(right.tok, knownVars)
@@ -164,6 +177,12 @@ class Interpreter:
                     knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value])
                 else:
                     knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value])
+            elif type(value) == RandomStatement:
+                value = self.randStatement()
+                knownVars.append([Token(T_IDENTIFIER,expr.var_name.value),value.tok])
+            elif type(value) == RandIntStatement:
+                value = self.randIntStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
             else:
                 knownVars.append([Token(T_IDENTIFIER,expr.var_name.value),expr.expr_value.tok])
         else:
@@ -183,8 +202,15 @@ class Interpreter:
             elif type(value) == RunFuncStatement:
                 value = self.runFuncStatement(value,knownFunc,knownVars)
                 knownVars[found_index][1] = value
+            elif type(value) == RandomStatement:
+                value = self.randStatement()
+                knownVars[found_index][1] = value.tok
+            elif type(value) == RandIntStatement:
+                value = self.randIntStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
             else:
                 knownVars[found_index][1]= value.tok
+
 
     def printStat(self,expr, knownFunc, knownVars):
         if type(expr.value)==BinOP:
@@ -208,6 +234,7 @@ class Interpreter:
     def ifStat(self, expr, knownFunc,knownVars):
         compexpr = expr.compexpr
         ifexpr = expr.expression
+        old_expr = copy.deepcopy(ifexpr)
         binOpResults = []
         FUNCRES = None
         if self.binop(compexpr, knownFunc, knownVars).tok.T_TYPE==T_TRUE:
@@ -234,16 +261,22 @@ class Interpreter:
                     print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
                 elif type(lineExpr) == AppendStatement:
                     self.appendStat(lineExpr, knownVars)
-
+                elif type(lineExpr) == RandomStatement:
+                    self.randStatement( )
+                elif type(lineExpr) == RandIntStatement:
+                    self.randIntStatement(lineExpr, knownVars)
                 if FUNCRES!=None:
                     return FUNCRES
+                ifexpr = copy.deepcopy(old_expr)
 
     def whileStat(self, expr, knownFunc, knownVars):
         compexpr = expr.compexpr
         ifexpr = expr.expression
+        old_expr = copy.deepcopy(ifexpr)
         binOpResults = []
         returned = False
         FUNCRES = None
+
         while self.binop(compexpr, knownFunc,knownVars).tok.T_TYPE == T_TRUE and returned==False:
             for lineExpr in ifexpr:
                 if type(lineExpr) == BinOP:
@@ -268,9 +301,14 @@ class Interpreter:
                     print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
                 elif type(lineExpr) == AppendStatement:
                     self.appendStat(lineExpr, knownVars)
-
+                elif type(lineExpr) == RandomStatement:
+                    self.randStatement( )
+                elif type(lineExpr) == RandIntStatement:
+                    self.randIntStatement(lineExpr, knownVars)
                 if FUNCRES!=None:
                     return FUNCRES
+                ifexpr = copy.deepcopy(old_expr)
+
 
     #NEEDS TO BE IMPLEMENTED
     def elseStat(self, expr, knownVars):
@@ -397,22 +435,28 @@ class Interpreter:
                 self.runFuncStatement(lineExpr, knownFunc, FUNCKW)
             elif type(lineExpr) == AppendStatement:
                 self.appendStat(lineExpr,FUNCKW)
+            elif type(lineExpr) == RandomStatement:
+                self.randStatement()
+            elif type(lineExpr) == RandIntStatement:
+                self.randIntStatement(lineExpr, FUNCKW)
             if FUNCRES!=None:
                 break
 
         return FUNCRES
 
     def appendStat(self, expr,knownVars):
-        TOK = {
-            int: T_INT,
-            float: T_FLOAT,
-            str: T_STRING,
-            Token: T_ARRAY
-        }
         _array_name = Token(T_IDENTIFIER, expr.array.value)
         _value = self.getVarVal(expr.value, knownVars).value
         index = self.find_var_by_name(_array_name, knownVars)
         knownVars[index][1].tok.value.append(_value)
+
+    def randStatement(self):
+        return NumberNode(Token(T_FLOAT, random.random()))
+
+    def randIntStatement(self, expr, knownVars):
+        min_val = self.getVarVal(expr.min_val, knownVars)
+        max_val = self.getVarVal(expr.max_val, knownVars)
+        return NumberNode(Token(T_FLOAT, random.randint(min_val.value, max_val.value)))
 
     def initialize(self, filename):
         #old lexer
@@ -459,6 +503,11 @@ class Interpreter:
                 print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
             elif type(lineExpr) == AppendStatement:
                 self.appendStat(lineExpr,knownVars)
+            elif type(lineExpr) == RandomStatement:
+                self.randStatement()
+            elif type(lineExpr) == RandIntStatement:
+                self.randIntStatement(lineExpr, knownVars)
+
 
 """EXAMPLE OF A GLOBALVAR FORMAT
 _Interpreter.globalvars.append([Token(T_IDENTIFIER,"TESTVAR"),Token(T_INT,int(1))])
