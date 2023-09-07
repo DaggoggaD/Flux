@@ -24,7 +24,6 @@ Interpreted (tree-walking) programming language Flux written in Python.
 
 * Type conversion (int -> float, int -> string ... )
 * User input
-* Import
 * Else
 * Errors
 * Switch
