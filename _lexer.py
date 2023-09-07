@@ -53,7 +53,8 @@ keywords = [
     "return",
     "append",
     "random",
-    "randint"
+    "randint",
+    "remAV"
 ]
 
 operations = [

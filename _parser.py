@@ -125,6 +125,13 @@ class RandomStatement:
     def __repr__(self):
         return f"(random: ({self.value}))"
 
+class RemoveAVStatement:
+    def __init__(self, array, location):
+        self.array = array
+        self.location = location
+
+    def __repr__(self):
+        return f"(removeAR: {self.array}[{self.location}])"
 
 class Parser:
     def __init__(self, tokens):
@@ -457,6 +464,26 @@ class Parser:
             tok = Token(T_INT, random.randint(min_val.value, max_val.value))
             return NumberNode(tok)
             """
+        # REMOVE STATEMENT
+        if self.currtok.matches(T_KEYWORD, "remAV"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after remAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            arr_name = self.currtok
+            if arr_name.value == "getAV":
+                arr_name = self.expr()
+            else:
+                self.advance( )
+            var_location = self.currtok
+            self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after remAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return RemoveAVStatement(arr_name, var_location)
+
         # MATH OPERATIONS
         left = self.term( )
         while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
