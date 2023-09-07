@@ -496,6 +496,13 @@ class Interpreter:
         max_val = self.getVarVal(expr.max_val, knownVars)
         return NumberNode(Token(T_FLOAT, random.randint(min_val.value, max_val.value)))
 
+    def importStatement(self, expr):
+        filename = expr.import_name.value
+        Lex2 = Lexer(filename)
+        Lex2.RUN( )
+        C_Parser2 = Parser(Lex2.tokens)
+        C_expressions = C_Parser2.run( )
+        return C_expressions
 
     def initialize(self, filename):
         #new lexer
@@ -543,8 +550,13 @@ class Interpreter:
                 self.randStatement()
             elif type(lineExpr) == RandIntStatement:
                 self.randIntStatement(lineExpr, knownVars)
-            elif type(lineExpr) == RemoveAVStatement:
-                self.remAVstat(lineExpr, knownVars)
+            elif type(lineExpr) == ImportStatement:
+                res = self.importStatement(lineExpr)
+                exprind = self.expressions.index(lineExpr)
+                i = 1
+                for sres in res:
+                    self.expressions.insert(exprind+i,sres)
+                    i+=1
 
 
 """EXAMPLE OF A GLOBALVAR FORMAT

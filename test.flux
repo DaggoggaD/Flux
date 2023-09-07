@@ -1,4 +1,5 @@
-store i = 4;
-store var = [1,2,3,4,5,];
-remAV(var i);
-print(var);
+import Utilities.flux;
+print(abs(2));
+print(sqrt(4));
+print(pow(2 3));
+print(factorial(5));

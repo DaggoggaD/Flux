@@ -54,7 +54,8 @@ keywords = [
     "append",
     "random",
     "randint",
-    "remAV"
+    "remAV",
+    "import"
 ]
 
 operations = [

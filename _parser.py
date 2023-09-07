@@ -133,6 +133,13 @@ class RemoveAVStatement:
     def __repr__(self):
         return f"(removeAR: {self.array}[{self.location}])"
 
+class ImportStatement:
+    def __init__(self, import_name):
+        self.import_name = import_name
+
+    def __repr__(self):
+        return f"(import file: {self.import_name})"
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -483,6 +490,13 @@ class Parser:
                 return Token(T_ERROR)
             self.advance( )
             return RemoveAVStatement(arr_name, var_location)
+        # IMPORT STATEMENT
+        if self.currtok.matches(T_KEYWORD, "import"):
+            self.advance()
+            import_name= self.currtok
+            self.advance()
+            if self.currtok.matches(T_KEYWORD,";"):
+                return ImportStatement(import_name)
 
         # MATH OPERATIONS
         left = self.term( )
