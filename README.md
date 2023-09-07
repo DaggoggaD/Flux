@@ -1,7 +1,7 @@
 # Flux v0.3
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: remAV.**
+* **New features: remAV, import.**
 
 ## Current state of progress
 #### Early submission of flux. 
@@ -18,6 +18,7 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Append array
 * Random values (int, float)
 * Array remove value
+* Import
 
 ### WIP/planned features:
 
@@ -60,7 +61,7 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
     store i = i + 1;
     ```
 * print:
-  * To print values to the user you use the "print" keyword: `print(VALUE);`.
+  * To print values to the user, use the "print" keyword: `print(VALUE);`.
   * You can print integers, floats, strings and arrays by passing their value or identifier: `print(1);` or `print(2.2);` or `print(VALUE);` or `print(variable_name);`
 * while:
   * #### For loops won't be implemented to keep the language simpler.
@@ -83,5 +84,7 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
 * random values:
   * random float: `random();` -> returns float between 0 and 1.
   * random int: `randint(START END);` -> returns int between START and END.
+* import:
+  * import a file: `import FILENAME;` with all variables and functions.
  # Other Infos
 All grammar info will be updated as feature gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
