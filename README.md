@@ -1,7 +1,7 @@
-# Flux v0.2
+# Flux v0.3
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: booleans, setAV, nested getAV, array append, functions, random, randint, re-written _lexer.**
+* **New features: remAV.**
 
 ## Current state of progress
 #### Early submission of flux. 
@@ -17,6 +17,7 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Functions
 * Append array
 * Random values (int, float)
+* Array remove value
 
 ### WIP/planned features:
 
@@ -51,7 +52,8 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
   * Array values: to create an array you initialize the variable, and then assign it an array: `store ARRAY = [VALUE, VALUE, VALUES...,];`. At the last index of the array, you must add a `,` like so: `store ARRAY = [1,[1.1,1.2,1.3,],2,3,];`.
       * Array get value: `getAV(NAME INDEX);`. **CAN be nested**
       * Array set value: `setAV(NAME INDEX VALUE);` **CAN'T BE NESTED**
-      * Arrat append value: `append(NAME VALUE)` **CAN'T BE NESTED**
+      * Array append value: `append(NAME VALUE):` **CAN'T BE NESTED**
+      * Array remove value: `remAV(NAME INDEX);` **CAN'T BE NESTED**
   * `+= -= *= /= %=` are not supported and you'll need to use a "recursive" formula:
     ```
     store i = 0;
