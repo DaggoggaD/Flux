@@ -11,7 +11,7 @@ class Interpreter:
 
     def getVarVal(self, _token, knownVars):
         try:
-            if _token.T_TYPE in (T_INT, T_FLOAT, T_STRING):
+            if _token.T_TYPE in (T_INT, T_FLOAT, T_STRING, T_ARRAY):
                 return _token
             elif _token.T_TYPE in (T_IDENTIFIER):
                 for knownVar in knownVars:
@@ -238,6 +238,7 @@ class Interpreter:
         binOpResults = []
         FUNCRES = None
         if self.binop(compexpr, knownFunc, knownVars).tok.T_TYPE==T_TRUE:
+            ifexpr = copy.deepcopy(old_expr)
             for lineExpr in ifexpr:
                 if type(lineExpr) == BinOP:
                     binOpResults.append(self.binop(lineExpr, knownFunc,knownVars))
@@ -265,9 +266,10 @@ class Interpreter:
                     self.randStatement( )
                 elif type(lineExpr) == RandIntStatement:
                     self.randIntStatement(lineExpr, knownVars)
+
                 if FUNCRES!=None:
                     return FUNCRES
-                ifexpr = copy.deepcopy(old_expr)
+
 
     def whileStat(self, expr, knownFunc, knownVars):
         compexpr = expr.compexpr
@@ -305,9 +307,9 @@ class Interpreter:
                     self.randStatement( )
                 elif type(lineExpr) == RandIntStatement:
                     self.randIntStatement(lineExpr, knownVars)
+                ifexpr = copy.deepcopy(old_expr)
                 if FUNCRES!=None:
                     return FUNCRES
-                ifexpr = copy.deepcopy(old_expr)
 
 
     #NEEDS TO BE IMPLEMENTED
@@ -331,6 +333,7 @@ class Interpreter:
             int:T_INT,
             float:T_FLOAT,
             str:T_STRING,
+            list:T_ARRAY,
             Token:T_ARRAY
         }
         if type(expr.array)==GetAVStatement:
@@ -362,7 +365,10 @@ class Interpreter:
         _location = self.getVarVal(expr.location, knownVars).value
         _value = self.getVarVal(expr.value, knownVars).value
         index = self.find_var_by_name(_array_name,knownVars)
-        knownVars[index][1].tok.value[_location]=_value
+        if type(knownVars[index][1]) == NumberNode:
+            knownVars[index][1].tok.value[_location]=_value
+        else:
+            knownVars[index][1].value[_location] = _value
 
     def funcStat(self, expr,globalfunc):
         globalfunc.append([expr.funcnametok, expr.arguments, expr.expression])
@@ -377,6 +383,7 @@ class Interpreter:
             int: T_INT,
             float: T_FLOAT,
             str: T_STRING,
+            list: T_ARRAY,
             Token : -1
         }
         nametok = expr.funcnametok
@@ -411,8 +418,9 @@ class Interpreter:
             FUNCKW.append([arg.tok, Token(_TYPE,val)])
 
         expressions = FUNC[2]
+        og_expr = copy.deepcopy(expressions)
         binOpResults = []
-        for lineExpr in expressions:
+        for lineExpr in og_expr:
             if type(lineExpr) == BinOP:
                 binOpResults.append(self.binop(lineExpr, knownFunc, FUNCKW))
             elif type(lineExpr) == VarAssignNode:
@@ -448,7 +456,10 @@ class Interpreter:
         _array_name = Token(T_IDENTIFIER, expr.array.value)
         _value = self.getVarVal(expr.value, knownVars).value
         index = self.find_var_by_name(_array_name, knownVars)
-        knownVars[index][1].tok.value.append(_value)
+        if type(knownVars[index][1]) == NumberNode:
+            knownVars[index][1].tok.value.append(_value)
+        else:
+            knownVars[index][1].value.append(_value)
 
     def randStatement(self):
         return NumberNode(Token(T_FLOAT, random.random()))
