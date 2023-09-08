@@ -19,6 +19,7 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Random values (int, float)
 * Array remove value
 * Import
+* Round
 
 ### WIP/planned features:
 
@@ -85,5 +86,7 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
   * random int: `randint(START END);` -> returns int between START and END.
 * import:
   * import a file: `import FILENAME;` with all variables and functions.
+* round:
+  * round value: `round(VALUE);` -> FLOAT -> INT; INT->INT.
  # Other Infos
-All grammar info will be updated as feature gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
+All grammar info will be updated as features gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
