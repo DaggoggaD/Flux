@@ -1,6 +1,11 @@
 import copy
+import math
+
 from _parser import *
 
+
+##### CONTINUE ROOT, LOG, POW.
+##### FIX MISSING CASES IN BINOP, STOREVAR ECC.
 
 class Interpreter:
     def __init__(self, filename):
@@ -184,6 +189,18 @@ class Interpreter:
             elif type(value) == RandIntStatement:
                 value = self.randIntStatement(value, knownVars)
                 knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == RoundStatement:
+                value = self.roundStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == RootStatement:
+                value = self.rootStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == LogStatement:
+                value = self.logStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == PowStatement:
+                value = self.powStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
             else:
                 knownVars.append([Token(T_IDENTIFIER,expr.var_name.value),expr.expr_value.tok])
         else:
@@ -209,6 +226,18 @@ class Interpreter:
             elif type(value) == RandIntStatement:
                 value = self.randIntStatement(value, knownVars)
                 knownVars[found_index][1] = value.tok
+            elif type(value) == RoundStatement:
+                value = self.roundStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == RootStatement:
+                value = self.rootStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == LogStatement:
+                value = self.logStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == PowStatement:
+                value = self.powStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
             else:
                 knownVars[found_index][1]= value.tok
 
@@ -223,6 +252,18 @@ class Interpreter:
         elif type(expr.value)==RunFuncStatement:
             printVal = self.runFuncStatement(expr.value, knownFunc, knownVars)
             print(printVal.value)
+        elif type(expr.value) == RoundStatement:
+            printval = self.roundStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == RootStatement:
+            printval = self.rootStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == LogStatement:
+            printval = self.logStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == PowStatement:
+            printval = self.powStatement(expr.value, knownVars)
+            print(printval.tok.value)
         else:
             if type(expr.value) == NumberNode:
                 printVal = self.getVarVal(expr.value.tok, knownVars)
@@ -270,6 +311,14 @@ class Interpreter:
                     self.randIntStatement(lineExpr, knownVars)
                 elif type(lineExpr) == RemoveAVStatement:
                     self.remAVstat(lineExpr, knownVars)
+                elif type(lineExpr) == RoundStatement:
+                    self.roundStatement(lineExpr, knownVars)
+                elif type(lineExpr) == RootStatement:
+                    self.rootStatement(lineExpr, knownVars)
+                elif type(lineExpr) == LogStatement:
+                    self.logStatement(lineExpr, knownVars)
+                elif type(lineExpr) == PowStatement:
+                    self.powStatement(lineExpr, knownVars)
 
                 if FUNCRES!=None:
                     return FUNCRES
@@ -313,6 +362,14 @@ class Interpreter:
                     self.randIntStatement(lineExpr, knownVars)
                 elif type(lineExpr) == RemoveAVStatement:
                     self.remAVstat(lineExpr, knownVars)
+                elif type(lineExpr) == RoundStatement:
+                    self.roundStatement(lineExpr, knownVars)
+                elif type(lineExpr) == RootStatement:
+                    self.rootStatement(lineExpr, knownVars)
+                elif type(lineExpr) == LogStatement:
+                    self.logStatement(lineExpr, knownVars)
+                elif type(lineExpr) == PowStatement:
+                    self.powStatement(lineExpr, knownVars)
 
                 ifexpr = copy.deepcopy(old_expr)
                 if FUNCRES!=None:
@@ -389,6 +446,7 @@ class Interpreter:
             del knownVars[index][1].tok.value[_location]
         else:
             del knownVars[index][1].value[_location]
+
 
     def funcStat(self, expr,globalfunc):
         globalfunc.append([expr.funcnametok, expr.arguments, expr.expression])
@@ -471,6 +529,14 @@ class Interpreter:
                 self.randIntStatement(lineExpr, FUNCKW)
             elif type(lineExpr) == RemoveAVStatement:
                 self.remAVstat(lineExpr, FUNCKW)
+            elif type(lineExpr) == RoundStatement:
+                self.roundStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == RootStatement:
+                self.rootStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == LogStatement:
+                self.logStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == PowStatement:
+                self.powStatement(lineExpr, FUNCKW)
             if FUNCRES!=None:
                 break
 
@@ -496,6 +562,7 @@ class Interpreter:
         max_val = self.getVarVal(expr.max_val, knownVars)
         return NumberNode(Token(T_FLOAT, random.randint(min_val.value, max_val.value)))
 
+
     def importStatement(self, expr):
         filename = expr.import_name.value
         Lex2 = Lexer(filename)
@@ -503,6 +570,7 @@ class Interpreter:
         C_Parser2 = Parser(Lex2.tokens)
         C_expressions = C_Parser2.run( )
         return C_expressions
+
 
     def initialize(self, filename):
         #new lexer
@@ -519,6 +587,51 @@ class Interpreter:
             print(C_expressions)
         return C_expressions
 
+
+    def roundStatement(self, lineExpr, knownVars):
+        num = self.getVarVal(lineExpr.value, knownVars)
+        res = round(num.value)
+        return NumberNode(Token(T_INT, res))
+
+
+    def rootStatement(self, expr, knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            Token: -1
+        }
+        num = expr.root_val
+        exp = expr.root_exp
+        num = self.getVarVal(num, knownVars)
+        exp = self.getVarVal(exp, knownVars)
+        res = num.value**(1/exp.value)
+        return NumberNode(Token(TOK[type(res)],res))
+
+    def logStatement(self, expr, knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            Token: -1
+        }
+        base = expr.log_base
+        num = expr.log_val
+        num = self.getVarVal(num, knownVars)
+        base = self.getVarVal(base, knownVars)
+        res = math.log(num.value, base.value)
+        return NumberNode(Token(TOK[type(res)],res))
+
+    def powStatement(self, expr, knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            Token: -1
+        }
+        num = expr.pow_base
+        exp = expr.pow_exp
+        num = self.getVarVal(num, knownVars)
+        base = self.getVarVal(exp, knownVars)
+        res = num.value**exp.value
+        return NumberNode(Token(TOK[type(res)],res))
 
     def RUN(self):
         knownVars = []
@@ -557,6 +670,14 @@ class Interpreter:
                 for sres in res:
                     self.expressions.insert(exprind+i,sres)
                     i+=1
+            elif type(lineExpr) == RoundStatement:
+                self.roundStatement(lineExpr, knownVars)
+            elif type(lineExpr) == RootStatement:
+                self.rootStatement(lineExpr, knownVars)
+            elif type(lineExpr) == LogStatement:
+                self.logStatement(lineExpr, knownVars)
+            elif type(lineExpr) == PowStatement:
+                self.powStatement(lineExpr, knownVars)
 
 
 """EXAMPLE OF A GLOBALVAR FORMAT

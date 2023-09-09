@@ -55,7 +55,11 @@ keywords = [
     "random",
     "randint",
     "remAV",
-    "import"
+    "import",
+    "round",
+    "Mroot",
+    "Mlog",
+    "Mpow"
 ]
 
 operations = [
