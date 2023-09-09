@@ -20,10 +20,10 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Array remove value
 * Import
 * Round
+* Math functions (root, log, pow)
 
 ### WIP/planned features:
 
-* Math functions
 * Type conversion (int -> float, int -> string ... )
 * User input
 * Else
@@ -89,5 +89,9 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
   * import a file: `import FILENAME;` with all variables and functions.
 * round:
   * round value: `round(VALUE);` -> FLOAT -> INT; INT->INT.
+* math functions:
+  * power: `Mpow(BASE POWER);`
+  * root: `Mroot(EXPONENT VALUE);`
+  * log: `Mlog(BASE VALUE);`
  # Other Infos
 All grammar info will be updated as features gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
