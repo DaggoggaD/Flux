@@ -1,7 +1,7 @@
 # Flux v0.3
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: remAV, import, round, math functions, int and float conversion.**
+* **New features: remAV, import, round, math functions, int and float conversion, user input.**
 
 ## Current state of progress
 #### Early submission of flux. 
@@ -22,14 +22,13 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Round
 * Math functions (root, log, pow)
 * Type conversion (int, string, float -> float; int, string, float -> int)
+* User input
 
 ### WIP/planned features:
 
 * Type conversion (int, string, float -> string)
-* User input
 * Else
 * Errors
-* Break, Next, Try, Catch
 * Classes
 * Python modules accessibility (?)
 
@@ -95,6 +94,9 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
   * log: `Mlog(BASE VALUE);`
 * type conversion:
   * int: `int(VALUE);`
-  * float: `float(VALUE);` 
+  * float: `float(VALUE);`
+* user input:
+  * load value from user: `input(PROMPT);`
+  * assign value to var: `store NAME = input(PROMPT);`
  # Other Infos
 All grammar info will be updated as features gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
