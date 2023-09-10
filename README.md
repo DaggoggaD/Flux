@@ -1,7 +1,7 @@
-# Flux v0.2
+# Flux v0.3
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: booleans, setAV, nested getAV, array append, functions, random, randint, re-written _lexer.**
+* **New features: remAV, import, round, math functions, int and float conversion, user input.**
 
 ## Current state of progress
 #### Early submission of flux. 
@@ -17,16 +17,18 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Functions
 * Append array
 * Random values (int, float)
+* Array remove value
+* Import
+* Round
+* Math functions (root, log, pow)
+* Type conversion (int, string, float -> float; int, string, float -> int)
+* User input
 
 ### WIP/planned features:
 
-* Type conversion (int -> float, int -> string ... )
-* User input
-* Import
+* Type conversion (int, string, float -> string)
 * Else
 * Errors
-* Switch
-* Break, Next, Try, Catch
 * Classes
 * Python modules accessibility (?)
 
@@ -51,14 +53,15 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
   * Array values: to create an array you initialize the variable, and then assign it an array: `store ARRAY = [VALUE, VALUE, VALUES...,];`. At the last index of the array, you must add a `,` like so: `store ARRAY = [1,[1.1,1.2,1.3,],2,3,];`.
       * Array get value: `getAV(NAME INDEX);`. **CAN be nested**
       * Array set value: `setAV(NAME INDEX VALUE);` **CAN'T BE NESTED**
-      * Arrat append value: `append(NAME VALUE)` **CAN'T BE NESTED**
+      * Array append value: `append(NAME VALUE):` **CAN'T BE NESTED**
+      * Array remove value: `remAV(NAME INDEX);` **CAN'T BE NESTED**
   * `+= -= *= /= %=` are not supported and you'll need to use a "recursive" formula:
     ```
     store i = 0;
     store i = i + 1;
     ```
 * print:
-  * To print values to the user you use the "print" keyword: `print(VALUE);`.
+  * To print values to the user, use the "print" keyword: `print(VALUE);`.
   * You can print integers, floats, strings and arrays by passing their value or identifier: `print(1);` or `print(2.2);` or `print(VALUE);` or `print(variable_name);`
 * while:
   * #### For loops won't be implemented to keep the language simpler.
@@ -81,5 +84,19 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
 * random values:
   * random float: `random();` -> returns float between 0 and 1.
   * random int: `randint(START END);` -> returns int between START and END.
+* import:
+  * import a file: `import FILENAME;` with all variables and functions.
+* round:
+  * round value: `round(VALUE);` -> FLOAT -> INT; INT->INT.
+* math functions:
+  * power: `Mpow(BASE POWER);`
+  * root: `Mroot(EXPONENT VALUE);`
+  * log: `Mlog(BASE VALUE);`
+* type conversion:
+  * int: `int(VALUE);`
+  * float: `float(VALUE);`
+* user input:
+  * load value from user: `input(PROMPT);`
+  * assign value to var: `store NAME = input(PROMPT);`
  # Other Infos
-All grammar info will be updated as feature gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
+All grammar info will be updated as features gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.

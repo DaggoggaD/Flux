@@ -53,7 +53,16 @@ keywords = [
     "return",
     "append",
     "random",
-    "randint"
+    "randint",
+    "remAV",
+    "import",
+    "round",
+    "Mroot",
+    "Mlog",
+    "Mpow",
+    "int",
+    "float",
+    "input"
 ]
 
 operations = [

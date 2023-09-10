@@ -125,6 +125,74 @@ class RandomStatement:
     def __repr__(self):
         return f"(random: ({self.value}))"
 
+class RemoveAVStatement:
+    def __init__(self, array, location):
+        self.array = array
+        self.location = location
+
+    def __repr__(self):
+        return f"(removeAR: {self.array}[{self.location}])"
+
+class ImportStatement:
+    def __init__(self, import_name):
+        self.import_name = import_name
+
+    def __repr__(self):
+        return f"(import file: {self.import_name})"
+
+#CONTINUE HERE
+class RoundStatement:
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return f"(round value: {self.value})"
+
+class RootStatement:
+    def __init__(self, root_exp, root_val):
+        self.root_exp = root_exp
+        self.root_val = root_val
+
+    def __repr__(self):
+        return f"(root: {self.root_val}^1/{self.root_exp})"
+
+class LogStatement:
+    def __init__(self, log_base, log_val):
+        self.log_base = log_base
+        self.log_val = log_val
+
+    def __repr__(self):
+        return f"(log: base {self.log_base} of {self.log_val})"
+
+class PowStatement:
+    def __init__(self, pow_base, pow_exp):
+        self.pow_base = pow_base
+        self.pow_exp = pow_exp
+
+    def __repr__(self):
+        return f"(power: {self.pow_base}^{self.pow_exp})"
+
+
+class ToIntStatement:
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return f"(to int value: {self.value})"
+
+class ToFloatStatement:
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return f"(to float value: {self.value})"
+
+class InputStatement:
+    def __init__(self, info_value):
+        self.info_value = info_value
+
+    def __repr__(self):
+        return f"(input_var -> {self.info_value.value})"
 
 class Parser:
     def __init__(self, tokens):
@@ -457,6 +525,173 @@ class Parser:
             tok = Token(T_INT, random.randint(min_val.value, max_val.value))
             return NumberNode(tok)
             """
+        # REMOVE STATEMENT
+        if self.currtok.matches(T_KEYWORD, "remAV"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after remAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            arr_name = self.currtok
+            if arr_name.value == "getAV":
+                arr_name = self.expr()
+            else:
+                self.advance( )
+            var_location = self.currtok
+            self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after remAV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return RemoveAVStatement(arr_name, var_location)
+        # IMPORT STATEMENT
+        if self.currtok.matches(T_KEYWORD, "import"):
+            self.advance()
+            import_name= self.currtok
+            self.advance()
+            if self.currtok.matches(T_KEYWORD,";"):
+                return ImportStatement(import_name)
+        # ROUND STATEMENT
+        if self.currtok.matches(T_KEYWORD, "round"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after round statement")
+                return Token(T_ERROR)
+            self.advance( )
+            round_val = self.currtok
+            """changed"""
+            if round_val.value == "getAV":
+                round_val = self.expr()
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after round statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return RoundStatement(round_val)
+        # ROOT STATEMENT
+        if self.currtok.matches(T_KEYWORD, "Mroot"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after root statement")
+                return Token(T_ERROR)
+            self.advance( )
+            root_exp = self.currtok
+            if root_exp.value == "getAV":
+                root_exp = self.expr()
+            else:
+                self.advance( )
+            root_val = self.currtok
+            if root_val.value == "getAV":
+                root_val = self.expr( )
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after root statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return RootStatement(root_exp, root_val)
+        # LOG STATEMENT
+        if self.currtok.matches(T_KEYWORD, "Mlog"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after log statement")
+                return Token(T_ERROR)
+            self.advance( )
+            log_base = self.currtok
+            """changed"""
+            if log_base.value == "getAV":
+                log_base = self.expr( )
+            else:
+                self.advance( )
+            log_val = self.currtok
+            if log_val.value == "getAV":
+                log_val = self.expr( )
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after log statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return LogStatement(log_base, log_val)
+        # POWER STATEMENT
+        if self.currtok.matches(T_KEYWORD, "Mpow"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after pow statement")
+                return Token(T_ERROR)
+            self.advance( )
+            pow_base = self.currtok
+            """changed"""
+            if pow_base.value == "getAV":
+                pow_base = self.expr( )
+            else:
+                self.advance( )
+            pow_exp = self.currtok
+            if pow_exp.value == "getAV":
+                pow_exp = self.expr( )
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after pow statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return PowStatement(pow_base, pow_exp)
+        # TOINT STATEMENT
+        if self.currtok.matches(T_KEYWORD, "int"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after int statement")
+                return Token(T_ERROR)
+            self.advance( )
+            val = self.currtok
+            """changed"""
+            if val.value == "getAV":
+                val = self.expr()
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after int statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return ToIntStatement(val)
+        # TOFLOAT STATEMENT
+        if self.currtok.matches(T_KEYWORD, "float"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after float statement")
+                return Token(T_ERROR)
+            self.advance( )
+            val = self.currtok
+            """changed"""
+            if val.value == "getAV":
+                val = self.expr( )
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after int statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return ToFloatStatement(val)
+        # INPUT STATEMENT
+        if self.currtok.matches(T_KEYWORD, "input"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after input statement")
+                return Token(T_ERROR)
+            self.advance( )
+            input_info = self.currtok
+            """changed"""
+            if input_info.value == "getAV":
+                input_info = self.expr( )
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after input statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return InputStatement(input_info)
+
         # MATH OPERATIONS
         left = self.term( )
         while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):

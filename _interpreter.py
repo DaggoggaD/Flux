@@ -1,8 +1,11 @@
-import random
 import copy
-from _parser import *
-import _lexerOLD
+import math
 
+from _parser import *
+
+
+##### CONTINUE ROOT, LOG, POW.
+##### FIX MISSING CASES IN BINOP, STOREVAR ECC.
 
 class Interpreter:
     def __init__(self, filename):
@@ -24,6 +27,7 @@ class Interpreter:
             if type(_token) in (int, str, float):
                 return _token
 
+
     def binop(self, expr, knownFunc, knownVars):
         TOK = {
             int:T_INT,
@@ -36,23 +40,24 @@ class Interpreter:
 
         if type(left) == BinOP:
             left = self.binop(left, knownFunc,knownVars)
+        elif type(left) == GetAVStatement:
+            left = self.getAVStat(left, knownVars)
+        elif type(left) == RunFuncStatement:
+            left = NumberNode(self.runFuncStatement(left, knownFunc, knownVars))
+        elif type(left) == RandomStatement:
+            left = self.randStatement()
+        elif type(left) == RandIntStatement:
+            left = self.randIntStatement(left, knownVars)
+
         if type(right) == BinOP:
             right = self.binop(right, knownFunc, knownVars)
-        if type(left) == GetAVStatement:
-            left = self.getAVStat(left, knownVars)
-        if type(right) == GetAVStatement:
+        elif type(right) == GetAVStatement:
             right = self.getAVStat(right, knownVars)
-        if type(left) == RunFuncStatement:
-            left = NumberNode(self.runFuncStatement(left, knownFunc, knownVars))
-        if type(right) == RunFuncStatement:
+        elif type(right) == RunFuncStatement:
             right = NumberNode(self.runFuncStatement(right, knownFunc, knownVars))
-        if type(left) == RandomStatement:
-            left = self.randStatement()
-        if type(right) == RandomStatement:
+        elif type(right) == RandomStatement:
             right = self.randStatement()
-        if type(left) == RandIntStatement:
-            left = self.randIntStatement(left, knownVars)
-        if type(right) == RandomStatement:
+        elif type(right) == RandomStatement:
             right = self.randIntStatement(right, knownVars)
 
         opl = self.getVarVal(left.tok, knownVars)
@@ -153,6 +158,7 @@ class Interpreter:
                 print("ERROR: Cannot perform <= between string and string or <= int/float and string.")
                 return None
 
+
     def storevar(self, expr, knownFunc, knownVars):
         found=0
         found_index = None
@@ -183,6 +189,27 @@ class Interpreter:
             elif type(value) == RandIntStatement:
                 value = self.randIntStatement(value, knownVars)
                 knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == RoundStatement:
+                value = self.roundStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == RootStatement:
+                value = self.rootStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == LogStatement:
+                value = self.logStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == PowStatement:
+                value = self.powStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == ToIntStatement:
+                value = self.toIntStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == ToFloatStatement:
+                value = self.toFloatStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == InputStatement:
+                value = self.inputStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
             else:
                 knownVars.append([Token(T_IDENTIFIER,expr.var_name.value),expr.expr_value.tok])
         else:
@@ -208,6 +235,27 @@ class Interpreter:
             elif type(value) == RandIntStatement:
                 value = self.randIntStatement(value, knownVars)
                 knownVars[found_index][1] = value.tok
+            elif type(value) == RoundStatement:
+                value = self.roundStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == RootStatement:
+                value = self.rootStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == LogStatement:
+                value = self.logStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == PowStatement:
+                value = self.powStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == ToIntStatement:
+                value = self.toIntStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == ToFloatStatement:
+                value = self.toFloatStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == InputStatement:
+                value = self.inputStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
             else:
                 knownVars[found_index][1]= value.tok
 
@@ -222,6 +270,27 @@ class Interpreter:
         elif type(expr.value)==RunFuncStatement:
             printVal = self.runFuncStatement(expr.value, knownFunc, knownVars)
             print(printVal.value)
+        elif type(expr.value) == RoundStatement:
+            printval = self.roundStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == RootStatement:
+            printval = self.rootStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == LogStatement:
+            printval = self.logStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == PowStatement:
+            printval = self.powStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == ToIntStatement:
+            printval = self.toIntStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == ToFloatStatement:
+            printval = self.toFloatStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == InputStatement:
+            printval = self.inputStatement(expr.value, knownVars)
+            print(printval.tok.value)
         else:
             if type(expr.value) == NumberNode:
                 printVal = self.getVarVal(expr.value.tok, knownVars)
@@ -230,6 +299,7 @@ class Interpreter:
             else:
                 printVal = self.getVarVal(expr.value.tok,knownVars)
                 print(printVal)
+
 
     def ifStat(self, expr, knownFunc,knownVars):
         compexpr = expr.compexpr
@@ -266,7 +336,22 @@ class Interpreter:
                     self.randStatement( )
                 elif type(lineExpr) == RandIntStatement:
                     self.randIntStatement(lineExpr, knownVars)
-
+                elif type(lineExpr) == RemoveAVStatement:
+                    self.remAVstat(lineExpr, knownVars)
+                elif type(lineExpr) == RoundStatement:
+                    self.roundStatement(lineExpr, knownVars)
+                elif type(lineExpr) == RootStatement:
+                    self.rootStatement(lineExpr, knownVars)
+                elif type(lineExpr) == LogStatement:
+                    self.logStatement(lineExpr, knownVars)
+                elif type(lineExpr) == PowStatement:
+                    self.powStatement(lineExpr, knownVars)
+                elif type(lineExpr) == ToIntStatement:
+                    self.toIntStatement(lineExpr, knownVars)
+                elif type(lineExpr) == ToFloatStatement:
+                    self.toFloatStatement(lineExpr, knownVars)
+                elif type(lineExpr) == InputStatement:
+                    self.inputStatement(lineExpr, knownVars)
                 if FUNCRES!=None:
                     return FUNCRES
 
@@ -307,14 +392,29 @@ class Interpreter:
                     self.randStatement( )
                 elif type(lineExpr) == RandIntStatement:
                     self.randIntStatement(lineExpr, knownVars)
+                elif type(lineExpr) == RemoveAVStatement:
+                    self.remAVstat(lineExpr, knownVars)
+                elif type(lineExpr) == RoundStatement:
+                    self.roundStatement(lineExpr, knownVars)
+                elif type(lineExpr) == RootStatement:
+                    self.rootStatement(lineExpr, knownVars)
+                elif type(lineExpr) == LogStatement:
+                    self.logStatement(lineExpr, knownVars)
+                elif type(lineExpr) == PowStatement:
+                    self.powStatement(lineExpr, knownVars)
+                elif type(lineExpr) == ToIntStatement:
+                    self.toIntStatement(lineExpr, knownVars)
+                elif type(lineExpr) == ToFloatStatement:
+                    self.toFloatStatement(lineExpr, knownVars)
+                elif type(lineExpr) == InputStatement:
+                    self.inputStatement(lineExpr, knownVars)
                 ifexpr = copy.deepcopy(old_expr)
                 if FUNCRES!=None:
                     return FUNCRES
 
 
-    #NEEDS TO BE IMPLEMENTED
     def elseStat(self, expr, knownVars):
-        elsexpr = expr.expression
+        """elsexpr = expr.expression
         binOpResults = []
         for lineExpr in elsexpr:
             if type(lineExpr) == BinOP:
@@ -326,7 +426,9 @@ class Interpreter:
             elif type(lineExpr) == IfStatement:
                 self.ifStat(lineExpr, knownVars)
             elif type(lineExpr) == ElseStatement:
-                self.elseStat(lineExpr, knownVars)
+                self.elseStat(lineExpr, knownVars)"""
+        return
+
 
     def getAVStat(self, expr,knownVars):
         TOK = {
@@ -348,10 +450,12 @@ class Interpreter:
         else:
             return NumberNode(Token(TOK[type(neededvar)],neededvar))
 
+
     def find_var_by_name(self, name, knownVars):
         for var in knownVars:
             if var[0].value == name.value:
                 return knownVars.index(var)
+
 
     def setAVStat(self, expr,knownVars):
 
@@ -370,13 +474,26 @@ class Interpreter:
         else:
             knownVars[index][1].value[_location] = _value
 
+
+    def remAVstat(self, expr,knownVars):
+        _array_name = Token(T_IDENTIFIER, expr.array.value)
+        _location = self.getVarVal(expr.location, knownVars).value
+        index = self.find_var_by_name(_array_name, knownVars)
+        if type(knownVars[index][1]) == NumberNode:
+            del knownVars[index][1].tok.value[_location]
+        else:
+            del knownVars[index][1].value[_location]
+
+
     def funcStat(self, expr,globalfunc):
         globalfunc.append([expr.funcnametok, expr.arguments, expr.expression])
+
 
     def returnStat(self,expr,knownVars):
         expr_tok = expr.value
         ret_value = self.getVarVal(expr_tok,knownVars)
         return ret_value
+
 
     def runFuncStatement(self, expr, knownFunc, knownVars):
         TOK = {
@@ -447,10 +564,27 @@ class Interpreter:
                 self.randStatement()
             elif type(lineExpr) == RandIntStatement:
                 self.randIntStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == RemoveAVStatement:
+                self.remAVstat(lineExpr, FUNCKW)
+            elif type(lineExpr) == RoundStatement:
+                self.roundStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == RootStatement:
+                self.rootStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == LogStatement:
+                self.logStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == PowStatement:
+                self.powStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == ToIntStatement:
+                self.toIntStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == ToFloatStatement:
+                self.toFloatStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == InputStatement:
+                self.inputStatement(lineExpr, FUNCKW)
             if FUNCRES!=None:
                 break
 
         return FUNCRES
+
 
     def appendStat(self, expr,knownVars):
         _array_name = Token(T_IDENTIFIER, expr.array.value)
@@ -461,18 +595,27 @@ class Interpreter:
         else:
             knownVars[index][1].value.append(_value)
 
+
     def randStatement(self):
         return NumberNode(Token(T_FLOAT, random.random()))
+
 
     def randIntStatement(self, expr, knownVars):
         min_val = self.getVarVal(expr.min_val, knownVars)
         max_val = self.getVarVal(expr.max_val, knownVars)
         return NumberNode(Token(T_FLOAT, random.randint(min_val.value, max_val.value)))
 
+
+    def importStatement(self, expr):
+        filename = expr.import_name.value
+        Lex2 = Lexer(filename)
+        Lex2.RUN( )
+        C_Parser2 = Parser(Lex2.tokens)
+        C_expressions = C_Parser2.run( )
+        return C_expressions
+
+
     def initialize(self, filename):
-        #old lexer
-        C_Lexer = _lexerOLD.Lexer()
-        C_Lexer.RUN_lexer(filename)
         #new lexer
         Lex = Lexer(filename)
         Lex.RUN( )
@@ -483,10 +626,103 @@ class Interpreter:
         #debug mode (shows tokens and parse_result)
         debug_mode = True
         if debug_mode == True:
-            print(C_Lexer.tokens)
             print(C_Parser.tokens)
             print(C_expressions)
         return C_expressions
+
+
+    def roundStatement(self, lineExpr, knownVars):
+        num = self.getVarVal(lineExpr.value, knownVars)
+        res = round(num.value)
+        return NumberNode(Token(T_INT, res))
+
+
+    def rootStatement(self, expr, knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            Token: -1
+        }
+        num = expr.root_val
+        exp = expr.root_exp
+        num = self.getVarVal(num, knownVars)
+        exp = self.getVarVal(exp, knownVars)
+        res = num.value**(1/exp.value)
+        return NumberNode(Token(TOK[type(res)],res))
+
+
+    def logStatement(self, expr, knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            Token: -1
+        }
+        base = expr.log_base
+        num = expr.log_val
+        num = self.getVarVal(num, knownVars)
+        base = self.getVarVal(base, knownVars)
+        res = math.log(num.value, base.value)
+        return NumberNode(Token(TOK[type(res)],res))
+
+
+    def powStatement(self, expr, knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            Token: -1
+        }
+        num = expr.pow_base
+        exp = expr.pow_exp
+        num = self.getVarVal(num, knownVars)
+        base = self.getVarVal(exp, knownVars)
+        res = num.value**exp.value
+        return NumberNode(Token(TOK[type(res)],res))
+
+
+    def toIntStatement(self, expr, knownVars):
+        num = expr.value
+        num = self.getVarVal(num, knownVars).value
+        try:
+            num = int(num)
+            return NumberNode(Token(T_INT, num))
+        except:
+            print("can't convert value to integer")
+            return NumberNode(Token(T_ERROR, "ERROR"))
+
+
+    def toFloatStatement(self, expr, knownVars):
+        num = expr.value
+        num = self.getVarVal(num, knownVars).value
+        try:
+            num = float(num)
+            return NumberNode(Token(T_FLOAT, num))
+        except:
+            print("can't convert value to integer")
+            return NumberNode(Token(T_ERROR, "ERROR"))
+
+
+    def tonum(self, value):
+        try:
+            try:
+                return int(value)
+            except:
+                return float(value)
+        except:
+            return str(value)
+
+
+    def inputStatement(self, expr, knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            str: T_STRING,
+            Token: -1
+        }
+        n_info = expr.info_value
+        res = input(n_info)
+        res = self.tonum(res)
+        return NumberNode(Token(TOK[type(res)], res))
+
 
     def RUN(self):
         knownVars = []
@@ -518,7 +754,27 @@ class Interpreter:
                 self.randStatement()
             elif type(lineExpr) == RandIntStatement:
                 self.randIntStatement(lineExpr, knownVars)
-
+            elif type(lineExpr) == ImportStatement:
+                res = self.importStatement(lineExpr)
+                exprind = self.expressions.index(lineExpr)
+                i = 1
+                for sres in res:
+                    self.expressions.insert(exprind+i,sres)
+                    i+=1
+            elif type(lineExpr) == RoundStatement:
+                self.roundStatement(lineExpr, knownVars)
+            elif type(lineExpr) == RootStatement:
+                self.rootStatement(lineExpr, knownVars)
+            elif type(lineExpr) == LogStatement:
+                self.logStatement(lineExpr, knownVars)
+            elif type(lineExpr) == PowStatement:
+                self.powStatement(lineExpr, knownVars)
+            elif type(lineExpr) == ToIntStatement:
+                self.toIntStatement(lineExpr, knownVars)
+            elif type(lineExpr) == ToFloatStatement:
+                self.toFloatStatement(lineExpr, knownVars)
+            elif type(lineExpr) == InputStatement:
+                self.inputStatement(lineExpr, knownVars)
 
 """EXAMPLE OF A GLOBALVAR FORMAT
 _Interpreter.globalvars.append([Token(T_IDENTIFIER,"TESTVAR"),Token(T_INT,int(1))])
