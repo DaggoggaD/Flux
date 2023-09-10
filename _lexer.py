@@ -59,7 +59,10 @@ keywords = [
     "round",
     "Mroot",
     "Mlog",
-    "Mpow"
+    "Mpow",
+    "int",
+    "float",
+    "input"
 ]
 
 operations = [

@@ -1,7 +1,7 @@
 from _interpreter import *
-print('To execute script: write filename with no "')
-print('To execute line: write line"')
-print('To exit: write end"')
+print('To execute script: write filename')
+print('To execute line: write line')
+print('To exit: write "end"')
 
 user_input = None
 f = open("ExecutionFile.flux","w")

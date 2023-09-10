@@ -201,6 +201,15 @@ class Interpreter:
             elif type(value) == PowStatement:
                 value = self.powStatement(value, knownVars)
                 knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == ToIntStatement:
+                value = self.toIntStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == ToFloatStatement:
+                value = self.toFloatStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
+            elif type(value) == InputStatement:
+                value = self.inputStatement(value, knownVars)
+                knownVars.append([Token(T_IDENTIFIER, expr.var_name.value), value.tok])
             else:
                 knownVars.append([Token(T_IDENTIFIER,expr.var_name.value),expr.expr_value.tok])
         else:
@@ -238,6 +247,15 @@ class Interpreter:
             elif type(value) == PowStatement:
                 value = self.powStatement(value, knownVars)
                 knownVars[found_index][1] = value.tok
+            elif type(value) == ToIntStatement:
+                value = self.toIntStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == ToFloatStatement:
+                value = self.toFloatStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
+            elif type(value) == InputStatement:
+                value = self.inputStatement(value, knownVars)
+                knownVars[found_index][1] = value.tok
             else:
                 knownVars[found_index][1]= value.tok
 
@@ -263,6 +281,15 @@ class Interpreter:
             print(printval.tok.value)
         elif type(expr.value) == PowStatement:
             printval = self.powStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == ToIntStatement:
+            printval = self.toIntStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == ToFloatStatement:
+            printval = self.toFloatStatement(expr.value, knownVars)
+            print(printval.tok.value)
+        elif type(expr.value) == InputStatement:
+            printval = self.inputStatement(expr.value, knownVars)
             print(printval.tok.value)
         else:
             if type(expr.value) == NumberNode:
@@ -319,7 +346,12 @@ class Interpreter:
                     self.logStatement(lineExpr, knownVars)
                 elif type(lineExpr) == PowStatement:
                     self.powStatement(lineExpr, knownVars)
-
+                elif type(lineExpr) == ToIntStatement:
+                    self.toIntStatement(lineExpr, knownVars)
+                elif type(lineExpr) == ToFloatStatement:
+                    self.toFloatStatement(lineExpr, knownVars)
+                elif type(lineExpr) == InputStatement:
+                    self.inputStatement(lineExpr, knownVars)
                 if FUNCRES!=None:
                     return FUNCRES
 
@@ -370,7 +402,12 @@ class Interpreter:
                     self.logStatement(lineExpr, knownVars)
                 elif type(lineExpr) == PowStatement:
                     self.powStatement(lineExpr, knownVars)
-
+                elif type(lineExpr) == ToIntStatement:
+                    self.toIntStatement(lineExpr, knownVars)
+                elif type(lineExpr) == ToFloatStatement:
+                    self.toFloatStatement(lineExpr, knownVars)
+                elif type(lineExpr) == InputStatement:
+                    self.inputStatement(lineExpr, knownVars)
                 ifexpr = copy.deepcopy(old_expr)
                 if FUNCRES!=None:
                     return FUNCRES
@@ -537,6 +574,12 @@ class Interpreter:
                 self.logStatement(lineExpr, FUNCKW)
             elif type(lineExpr) == PowStatement:
                 self.powStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == ToIntStatement:
+                self.toIntStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == ToFloatStatement:
+                self.toFloatStatement(lineExpr, FUNCKW)
+            elif type(lineExpr) == InputStatement:
+                self.inputStatement(lineExpr, FUNCKW)
             if FUNCRES!=None:
                 break
 
@@ -607,6 +650,7 @@ class Interpreter:
         res = num.value**(1/exp.value)
         return NumberNode(Token(TOK[type(res)],res))
 
+
     def logStatement(self, expr, knownVars):
         TOK = {
             int: T_INT,
@@ -620,6 +664,7 @@ class Interpreter:
         res = math.log(num.value, base.value)
         return NumberNode(Token(TOK[type(res)],res))
 
+
     def powStatement(self, expr, knownVars):
         TOK = {
             int: T_INT,
@@ -632,6 +677,52 @@ class Interpreter:
         base = self.getVarVal(exp, knownVars)
         res = num.value**exp.value
         return NumberNode(Token(TOK[type(res)],res))
+
+
+    def toIntStatement(self, expr, knownVars):
+        num = expr.value
+        num = self.getVarVal(num, knownVars).value
+        try:
+            num = int(num)
+            return NumberNode(Token(T_INT, num))
+        except:
+            print("can't convert value to integer")
+            return NumberNode(Token(T_ERROR, "ERROR"))
+
+
+    def toFloatStatement(self, expr, knownVars):
+        num = expr.value
+        num = self.getVarVal(num, knownVars).value
+        try:
+            num = float(num)
+            return NumberNode(Token(T_FLOAT, num))
+        except:
+            print("can't convert value to integer")
+            return NumberNode(Token(T_ERROR, "ERROR"))
+
+
+    def tonum(self, value):
+        try:
+            try:
+                return int(value)
+            except:
+                return float(value)
+        except:
+            return str(value)
+
+
+    def inputStatement(self, expr, knownVars):
+        TOK = {
+            int: T_INT,
+            float: T_FLOAT,
+            str: T_STRING,
+            Token: -1
+        }
+        n_info = expr.info_value
+        res = input(n_info)
+        res = self.tonum(res)
+        return NumberNode(Token(TOK[type(res)], res))
+
 
     def RUN(self):
         knownVars = []
@@ -678,7 +769,12 @@ class Interpreter:
                 self.logStatement(lineExpr, knownVars)
             elif type(lineExpr) == PowStatement:
                 self.powStatement(lineExpr, knownVars)
-
+            elif type(lineExpr) == ToIntStatement:
+                self.toIntStatement(lineExpr, knownVars)
+            elif type(lineExpr) == ToFloatStatement:
+                self.toFloatStatement(lineExpr, knownVars)
+            elif type(lineExpr) == InputStatement:
+                self.inputStatement(lineExpr, knownVars)
 
 """EXAMPLE OF A GLOBALVAR FORMAT
 _Interpreter.globalvars.append([Token(T_IDENTIFIER,"TESTVAR"),Token(T_INT,int(1))])
