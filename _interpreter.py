@@ -719,7 +719,7 @@ class Interpreter:
             Token: -1
         }
         n_info = expr.info_value
-        res = input(n_info)
+        res = input(n_info.value)
         res = self.tonum(res)
         return NumberNode(Token(TOK[type(res)], res))
 
