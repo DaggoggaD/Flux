@@ -1,7 +1,7 @@
-# Flux v0.3
+# Flux v0.4
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: remAV, import, round, math functions, int and float conversion, user input.**
+* **New features: CLASSES**
 
 ## Current state of progress
 #### Early submission of flux. 
