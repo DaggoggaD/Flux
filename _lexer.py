@@ -62,7 +62,8 @@ keywords = [
     "Mpow",
     "int",
     "float",
-    "input"
+    "input",
+    "class"
 ]
 
 operations = [

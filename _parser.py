@@ -194,6 +194,16 @@ class InputStatement:
     def __repr__(self):
         return f"(input_var -> {self.info_value.value})"
 
+class ClassStatement:
+    def __init__(self, class_name_token, expression, variables=None, functions=None):
+        self.class_name_token = class_name_token
+        self.expression = expression
+        self.variables = variables
+        self.functions = functions
+
+    def __repr__(self):
+        return f"(class {self.class_name_token.value}: {self.expression})"
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -255,7 +265,7 @@ class Parser:
         return ending_expr
 
     def expr(self):
-        # RUN FUNCTION
+        # RUN FUNCTION, RUN CLASS
         if self.currtok.T_TYPE==T_IDENTIFIER:
             if self.tokidx+1<len(self.tokens) and self.tokens[self.tokidx+1].T_TYPE==T_LPAR:
                 func_name = self.currtok
@@ -269,10 +279,6 @@ class Parser:
                     return Token(T_ERROR)
                 self.advance()
                 return RunFuncStatement(func_name, arguments)
-                """if self.currtok.matches(T_KEYWORD, ";"):
-                    
-                else:
-                    print("Missing ';' after function call")"""
         # VARIABLE ASSIGNMENT
         if self.currtok.matches(T_KEYWORD, "store"):
             self.advance( )
@@ -444,7 +450,7 @@ class Parser:
             func_name_token = self.currtok
             self.advance( )
             if self.currtok.T_TYPE != T_LPAR:
-                print("Required '(' after if statement")
+                print("Required '(' after function statement")
                 return Token(T_ERROR)
             self.advance( )
             arguments = []
@@ -452,7 +458,7 @@ class Parser:
                 arguments.append(self.expr( ))
             self.advance( )
             if self.currtok.T_TYPE != T_LGPAR:
-                print("Required '{' at if opening")
+                print("Required '{' at function opening")
                 return Token(T_ERROR)
             self.advance( )
             # skip NEWLINE
@@ -464,7 +470,7 @@ class Parser:
                 self.advance( )
             self.advance( )
             self.recentlyEndedIf = False
-            """NEEDS TO COMPLETE ARGUMENTS (, DOESNT WORK"""
+
             return FuncStatement(func_name_token, arguments, expressions)
         # RETURN STATEMENT
         if self.currtok.matches(T_KEYWORD, "return"):
@@ -691,6 +697,30 @@ class Parser:
                 return Token(T_ERROR)
             self.advance( )
             return InputStatement(input_info)
+        # CLASS STATEMENT
+        if self.currtok.matches(T_KEYWORD, "class"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_IDENTIFIER:
+                print("Required class name")
+                return Token(T_ERROR)
+            class_name_token = self.currtok
+            self.advance( )
+            if self.currtok.T_TYPE != T_LGPAR:
+                print("Required '{' at function opening")
+                return Token(T_ERROR)
+            self.advance( )
+            # skip NEWLINE
+            if self.currtok.T_TYPE == T_NEWLINE:
+                self.advance( )
+            expressions = []
+            while self.currtok.T_TYPE != T_RGPAR:
+                expressions.append(self.expr( ))
+                self.advance( )
+            self.advance( )
+            self.recentlyEndedIf = False
+
+            return ClassStatement(class_name_token, expressions)
+
 
         # MATH OPERATIONS
         left = self.term( )
