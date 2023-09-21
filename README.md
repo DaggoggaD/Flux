@@ -1,7 +1,7 @@
 # Flux v0.4
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: CLASSES**
+* **New features: CLASSES (class obj, initialization, value access)**
 
 ## Current state of progress
 #### Early submission of flux. 
@@ -23,13 +23,13 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Math functions (root, log, pow)
 * Type conversion (int, string, float -> float; int, string, float -> int)
 * User input
+* Classes: class obj, class initialization, access values (variables)
 
 ### WIP/planned features:
 
 * Type conversion (int, string, float -> string)
 * Else
 * Errors
-* Classes
 * Python modules accessibility (?)
 
 ## Issues
@@ -98,5 +98,16 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
 * user input:
   * load value from user: `input(PROMPT);`
   * assign value to var: `store NAME = input(PROMPT);`
+* classes:
+  * class obj: (only variables, functions not yet implemented.
+    ```
+    class CLASSNAME {
+       store a = 0;
+       ...
+    }
+    ```
+  * class initialization: `Instantiate(CLASSNAME);`. Can be stored: `store CLASSOBJ = Instantiate(CLASSNAME);`
+  * access class value: `CLASSNAME $ CLASS_VALUE_NAME`. Can be stored: `store CLASSVALUE = CLASSNAME $ CLASS_VALUE_NAME`
+
  # Other Infos
 All grammar info will be updated as features gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
