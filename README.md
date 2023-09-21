@@ -26,7 +26,7 @@ Interpreted (tree-walking) programming language Flux written in Python.
 * Classes: class obj, class initialization, access values (variables)
 
 ### WIP/planned features:
-
+* Class setCV (set class value);
 * Type conversion (int, string, float -> string)
 * Else
 * Errors
