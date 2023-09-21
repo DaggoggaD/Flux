@@ -204,6 +204,15 @@ class ClassStatement:
     def __repr__(self):
         return f"(class {self.class_name_token.value}: {self.expression})"
 
+
+class InstantiateStatement:
+    def __init__(self, class_name):
+        self.class_name = class_name
+
+    def __repr__(self):
+        return f"(Instantiate -> {self.class_name.value})"
+
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -301,15 +310,15 @@ class Parser:
                 else:
                     expr = oldexpr
 
-                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL, T_DOLLAR):
                     expr = self.expr( )
-            elif self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+            elif self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL, T_DOLLAR):
                 expr = self.expr()
                 if expr!=None:
                     expr = self.leftest_expression_modifier(expr, oldexpr)
                 else:
                     expr = oldexpr
-                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL, T_DOLLAR):
                     expr = self.expr( )
             self.advance( )
             if self.currtok.T_TYPE == T_NEWLINE or self.currtok.T_TYPE == T_RPAR:
@@ -720,11 +729,30 @@ class Parser:
             self.recentlyEndedIf = False
 
             return ClassStatement(class_name_token, expressions)
+        #INSTANTIATE STATEMENT
+        if self.currtok.matches(T_KEYWORD, "Instantiate"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after input statement")
+                return Token(T_ERROR)
+            self.advance( )
+            class_name = self.currtok
+            """changed"""
+            if class_name.value == "getAV":
+                class_name = self.expr( )
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after input statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return InstantiateStatement(class_name)
+
 
 
         # MATH OPERATIONS
         left = self.term( )
-        while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+        while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL, T_DOLLAR):
             op_token = self.currtok
             self.advance( )
             right = None
