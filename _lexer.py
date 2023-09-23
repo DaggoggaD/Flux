@@ -66,7 +66,8 @@ keywords = [
     "float",
     "input",
     "class",
-    "Instantiate"
+    "Instantiate",
+    "setCV"
 ]
 
 operations = [

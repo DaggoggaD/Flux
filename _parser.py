@@ -212,6 +212,14 @@ class InstantiateStatement:
     def __repr__(self):
         return f"(Instantiate -> {self.class_name.value})"
 
+class SetCVStatement:
+    def __init__(self, class_name, class_value, class_new_value):
+        self.class_name = class_name
+        self.class_value = class_value
+        self.class_new_value = class_new_value
+
+    def __repr__(self):
+        return f"(Set class: -> {self.class_name.value}.{self.class_value.value} -> {self.class_new_value.value})"
 
 class Parser:
     def __init__(self, tokens):
@@ -747,7 +755,29 @@ class Parser:
                 return Token(T_ERROR)
             self.advance( )
             return InstantiateStatement(class_name)
+        # INSTANTIATE STATEMENT
+        if self.currtok.matches(T_KEYWORD, "setCV"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after setCV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            class_name = self.currtok
+            self.advance( )
+            class_value = self.currtok
+            self.advance( )
+            class_new_value = self.currtok
+            if class_new_value.value == "getAV":
+                class_new_value = self.expr( )
+            else:
+                self.advance( )
 
+
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after setCV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return SetCVStatement(class_name, class_value, class_new_value)
 
 
         # MATH OPERATIONS
