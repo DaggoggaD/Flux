@@ -1,7 +1,7 @@
 # Flux v0.4
 Interpreted (tree-walking) programming language Flux written in Python.
 
-* **New features: CLASSES (class obj, initialization, value access)**
+* **New features: CLASSES (class obj, initialization, value access, setCV)**
 
 ## Current state of progress
 #### Early submission of flux. 
@@ -107,7 +107,7 @@ At the moment errors are poorly controlled and have no in-line info. A new syste
     }
     ```
   * class initialization: `Instantiate(CLASSNAME);`. Can be stored: `store CLASSOBJ = Instantiate(CLASSNAME);`
-  * access class value: `CLASSNAME $ CLASS_VALUE_NAME`. Can be stored: `store CLASSVALUE = CLASSNAME $ CLASS_VALUE_NAME`
-
+  * access class value: `CLASSNAME $ CLASS_VALUE_NAME;`. Can be stored: `store CLASSVALUE = CLASSNAME $ CLASS_VALUE_NAME`
+  * set class value: `setCV(CLASSNAME CLASS_VALUE_NAME VALUE);`
  # Other Infos
 All grammar info will be updated as features gets added or changed. The language is expected to be finished earlier than September 2024, as it will be used as a lyceum essay.
