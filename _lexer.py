@@ -34,7 +34,7 @@ T_TRUE = "TRUE"
 T_FALSE = "FALSE"
 ###tokens###
 
-###keywords, Operations###
+###keywords, operations###
 keywords = [
     "if",
     "else",
@@ -105,7 +105,7 @@ operations_dict = {
     "$" : T_DOLLAR,
     ";" : "SC",
 }
-###keywords###
+###keywords, operations###
 
 def is_int(n):
     try:

@@ -8,7 +8,6 @@ class NumberNode:
     def __repr__(self):
         return f"{self.tok}"
 
-
 class BinOP:
     def __init__(self, left, op, right):
         self.left = left
@@ -18,7 +17,6 @@ class BinOP:
     def __repr__(self):
         return f"({self.left},{self.op},{self.right})"
 
-
 class VarAssignNode:
     def __init__(self, var_name, expr_value):
         self.var_name = var_name
@@ -26,7 +24,6 @@ class VarAssignNode:
 
     def __repr__(self):
         return f"(assign: {self.var_name}, EQUALS, {self.expr_value})"
-
 
 class IfStatement:
     def __init__(self, compexpr, expression):
@@ -36,14 +33,12 @@ class IfStatement:
     def __repr__(self):
         return f"(if {self.compexpr}: {self.expression})"
 
-
 class ElseStatement:
     def __init__(self, expression):
         self.expression = expression
 
     def __repr__(self):
         return f"(else: {self.expression})"
-
 
 class WhileStatement:
     def __init__(self, compexpr, expression):
@@ -53,14 +48,12 @@ class WhileStatement:
     def __repr__(self):
         return f"(while {self.compexpr}: {self.expression})"
 
-
 class PrintStatement:
     def __init__(self, value):
         self.value = value
 
     def __repr__(self):
         return f"(print: {self.value})"
-
 
 class FuncStatement:
     def __init__(self, funcnametok, arguments, expression):
@@ -140,7 +133,6 @@ class ImportStatement:
     def __repr__(self):
         return f"(import file: {self.import_name})"
 
-#CONTINUE HERE
 class RoundStatement:
     def __init__(self, value):
         self.value = value
@@ -172,7 +164,6 @@ class PowStatement:
     def __repr__(self):
         return f"(power: {self.pow_base}^{self.pow_exp})"
 
-
 class ToIntStatement:
     def __init__(self, value):
         self.value = value
@@ -203,7 +194,6 @@ class ClassStatement:
 
     def __repr__(self):
         return f"(class {self.class_name_token.value}: {self.expression})"
-
 
 class InstantiateStatement:
     def __init__(self, class_name):
