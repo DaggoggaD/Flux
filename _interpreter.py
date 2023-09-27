@@ -3,6 +3,10 @@ import math
 
 from _parser import *
 
+
+##### CONTINUE ROOT, LOG, POW.
+##### FIX MISSING CASES IN BINOP, STOREVAR ECC.
+
 class Interpreter:
     def __init__(self, filename):
         self.filename = filename
@@ -70,13 +74,8 @@ class Interpreter:
         if op.T_TYPE == T_DOLLAR:
             classOBJ = opl
             neededclassv = right.tok
-            if type(classOBJ) == Token:
-                classvars = classOBJ.value[0]
-                classfunc = classOBJ.value[1]
-            if type(classOBJ) == list:
-                classvars = classOBJ[0]
-                classfunc = classOBJ[1]
-
+            classvars = classOBJ.value[0]
+            classfunc = classOBJ.value[1]
             for var in classvars:
                 if var[0].matches(T_IDENTIFIER, neededclassv.value):
                     return NumberNode(var[1])
@@ -279,6 +278,7 @@ class Interpreter:
             elif type(value) == InstantiateStatement:
                 self.instantiateStatement(value, knownVars)
                 knownVars[found_index][1] = value.tok
+
             else:
                 knownVars[found_index][1]= value.tok
 
@@ -319,7 +319,7 @@ class Interpreter:
             print(printval.tok.value)
         elif type(expr.value) == InstantiateStatement:
             printval = self.instantiateStatement(expr.value, knownVars)
-            print(printval.tok.value)
+            print("printval.tok.value")
 
         else:
             if type(expr.value) == NumberNode:
@@ -389,8 +389,6 @@ class Interpreter:
                     self.classStatement(lineExpr, knownVars)
                 elif type(lineExpr) == InstantiateStatement:
                     self.instantiateStatement(lineExpr, knownVars)
-                elif type(lineExpr) == SetCVStatement:
-                    self.setcvStatement(lineExpr, knownVars)
                 if FUNCRES!=None:
                     return FUNCRES
 
@@ -451,8 +449,6 @@ class Interpreter:
                     self.classStatement(lineExpr, knownVars)
                 elif type(lineExpr) == InstantiateStatement:
                     self.instantiateStatement(lineExpr, knownVars)
-                elif type(lineExpr) == SetCVStatement:
-                    self.setcvStatement(lineExpr, knownVars)
                 ifexpr = copy.deepcopy(old_expr)
                 if FUNCRES!=None:
                     return FUNCRES
@@ -629,8 +625,6 @@ class Interpreter:
                 self.classStatement(lineExpr, FUNCKW)
             elif type(lineExpr) == InstantiateStatement:
                 self.instantiateStatement(lineExpr, FUNCKW)
-            elif type(lineExpr) == SetCVStatement:
-                self.setcvStatement(lineExpr, FUNCKW)
             if FUNCRES!=None:
                 break
 
@@ -774,7 +768,6 @@ class Interpreter:
         res = self.tonum(res)
         return NumberNode(Token(TOK[type(res)], res))
 
-
     def type_switch(self, lineExpr, knownFunc, knownVars):
         if type(lineExpr) == BinOP:
             print(self.binop(lineExpr, knownFunc, knownVars))
@@ -823,13 +816,11 @@ class Interpreter:
             self.toFloatStatement(lineExpr, knownVars)
         elif type(lineExpr) == InputStatement:
             self.inputStatement(lineExpr, knownVars)
+
         elif type(lineExpr) == ClassStatement:
             self.classStatement(lineExpr, knownVars)
         elif type(lineExpr) == InstantiateStatement:
             self.instantiateStatement(lineExpr, knownVars)
-        elif type(lineExpr) == SetCVStatement:
-            self.setcvStatement(lineExpr, knownVars)
-
 
     def classStatement(self, expr, knownVars):
         class_type_name = expr.class_name_token
@@ -838,40 +829,68 @@ class Interpreter:
         class_vars = []
         for exprs in expressions:
             self.type_switch(exprs,class_funcs, class_vars)
-        knownVars.append([Token(T_IDENTIFIER, class_type_name.value), Token(T_CLASS, [class_vars, class_funcs])])
-
+        knownVars.append([Token(T_IDENTIFIER, class_type_name.value), Token(T_CLASS, (class_vars, class_funcs))])
 
     def instantiateStatement(self, expr, knownVars):
         class_name = expr.class_name
-        class_found = copy.deepcopy(self.getVarVal(class_name,knownVars))
+        class_found = self.getVarVal(class_name,knownVars)
         if class_found.T_TYPE == T_CLASS:
             return NumberNode(Token(T_CLASS, class_found.value))
-
-
-    def setcvStatement(self, lineExpr, knownVars):
-        class_name = lineExpr.class_name
-        class_value = lineExpr.class_value
-        class_new_value = lineExpr.class_new_value
-
-        classOBJ = copy.deepcopy(self.getVarVal(class_name, knownVars))
-        classVars = classOBJ.value[0]
-        classFunc = classOBJ.value[1]
-        class_new_value = self.getVarVal(class_new_value, knownVars)
-        idx = None
-        for var in classVars:
-            if var[0].matches(class_value.T_TYPE, class_value.value):
-                idx = classVars.index(var)
-
-        classVars = self.getVarVal(class_name, knownVars).value[0]
-        classVars[idx][1]=class_new_value
-
 
     def RUN(self):
         knownVars = []
         knownFunc = []
         for lineExpr in self.expressions:
             self.type_switch(lineExpr, knownFunc, knownVars)
-
+            """if type(lineExpr) == BinOP:
+                print(self.binop(lineExpr, knownFunc, knownVars))
+            elif type(lineExpr) == VarAssignNode:
+                self.storevar(lineExpr, knownFunc,knownVars)
+            elif type(lineExpr) == PrintStatement:
+                self.printStat(lineExpr,knownFunc,knownVars)
+            elif type(lineExpr) == IfStatement:
+                self.ifStat(lineExpr, knownFunc,knownVars)
+            elif type(lineExpr) == WhileStatement:
+                self.whileStat(lineExpr, knownFunc,knownVars)
+            elif type(lineExpr) == FuncStatement:
+                self.funcStat(lineExpr, knownFunc)
+            elif type(lineExpr) == GetAVStatement:
+                self.getAVStat(lineExpr,knownVars)
+            elif type(lineExpr) == SetAVStatement:
+                self.setAVStat(lineExpr,knownVars)
+            elif type(lineExpr) == ReturnStatement:
+                print(self.returnStat(lineExpr,knownVars))
+            elif type(lineExpr) == RunFuncStatement:
+                print(self.runFuncStatement(lineExpr, knownFunc, knownVars))
+            elif type(lineExpr) == AppendStatement:
+                self.appendStat(lineExpr,knownVars)
+            elif type(lineExpr) == RandomStatement:
+                self.randStatement()
+            elif type(lineExpr) == RandIntStatement:
+                self.randIntStatement(lineExpr, knownVars)
+            elif type(lineExpr) == ImportStatement:
+                res = self.importStatement(lineExpr)
+                exprind = self.expressions.index(lineExpr)
+                i = 1
+                for sres in res:
+                    self.expressions.insert(exprind+i,sres)
+                    i+=1
+            elif type(lineExpr) == RoundStatement:
+                self.roundStatement(lineExpr, knownVars)
+            elif type(lineExpr) == RootStatement:
+                self.rootStatement(lineExpr, knownVars)
+            elif type(lineExpr) == LogStatement:
+                self.logStatement(lineExpr, knownVars)
+            elif type(lineExpr) == PowStatement:
+                self.powStatement(lineExpr, knownVars)
+            elif type(lineExpr) == ToIntStatement:
+                self.toIntStatement(lineExpr, knownVars)
+            elif type(lineExpr) == ToFloatStatement:
+                self.toFloatStatement(lineExpr, knownVars)
+            elif type(lineExpr) == InputStatement:
+                self.inputStatement(lineExpr, knownVars)
+            elif type(lineExpr) == ClassStatement:
+                self.classStatement(lineExpr, knownVars)"""
 
 
 """EXAMPLE OF A GLOBALVAR FORMAT
