@@ -7,6 +7,7 @@ T_FLOAT = "FLOAT"
 T_STRING = "STRING"
 T_ARRAY = "ARRAY"
 T_BOOLEAN = "BOOL"
+T_CLASS = "CLASS"
 T_PLUS = "PLUS"
 T_MINUS = "MINUS"
 T_MUL = "MUL"
@@ -23,6 +24,7 @@ T_LGPAR = "LGPAR"
 T_RGPAR = "RGPAR"
 T_EQUAL = "EQUAL"
 T_NOTEQUAL = "NOTEQUAL"
+T_DOLLAR = "DOLLAR"
 T_KEYWORD = "KW"
 T_IDENTIFIER = "ID"
 T_NEWLINE = "NEWLINE"
@@ -32,7 +34,7 @@ T_TRUE = "TRUE"
 T_FALSE = "FALSE"
 ###tokens###
 
-###keywords, Operations###
+###keywords, operations###
 keywords = [
     "if",
     "else",
@@ -62,7 +64,10 @@ keywords = [
     "Mpow",
     "int",
     "float",
-    "input"
+    "input",
+    "class",
+    "Instantiate",
+    "setCV"
 ]
 
 operations = [
@@ -80,6 +85,7 @@ operations = [
     "(",
     ")",
     ";",
+    "$"
 ]
 
 operations_dict = {
@@ -96,9 +102,10 @@ operations_dict = {
     "}" : T_RGPAR,
     "(" : T_LPAR,
     ")" : T_RPAR,
+    "$" : T_DOLLAR,
     ";" : "SC",
 }
-###keywords###
+###keywords, operations###
 
 def is_int(n):
     try:

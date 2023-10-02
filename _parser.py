@@ -8,7 +8,6 @@ class NumberNode:
     def __repr__(self):
         return f"{self.tok}"
 
-
 class BinOP:
     def __init__(self, left, op, right):
         self.left = left
@@ -18,7 +17,6 @@ class BinOP:
     def __repr__(self):
         return f"({self.left},{self.op},{self.right})"
 
-
 class VarAssignNode:
     def __init__(self, var_name, expr_value):
         self.var_name = var_name
@@ -26,7 +24,6 @@ class VarAssignNode:
 
     def __repr__(self):
         return f"(assign: {self.var_name}, EQUALS, {self.expr_value})"
-
 
 class IfStatement:
     def __init__(self, compexpr, expression):
@@ -36,14 +33,12 @@ class IfStatement:
     def __repr__(self):
         return f"(if {self.compexpr}: {self.expression})"
 
-
 class ElseStatement:
     def __init__(self, expression):
         self.expression = expression
 
     def __repr__(self):
         return f"(else: {self.expression})"
-
 
 class WhileStatement:
     def __init__(self, compexpr, expression):
@@ -53,14 +48,12 @@ class WhileStatement:
     def __repr__(self):
         return f"(while {self.compexpr}: {self.expression})"
 
-
 class PrintStatement:
     def __init__(self, value):
         self.value = value
 
     def __repr__(self):
         return f"(print: {self.value})"
-
 
 class FuncStatement:
     def __init__(self, funcnametok, arguments, expression):
@@ -140,7 +133,6 @@ class ImportStatement:
     def __repr__(self):
         return f"(import file: {self.import_name})"
 
-#CONTINUE HERE
 class RoundStatement:
     def __init__(self, value):
         self.value = value
@@ -172,7 +164,6 @@ class PowStatement:
     def __repr__(self):
         return f"(power: {self.pow_base}^{self.pow_exp})"
 
-
 class ToIntStatement:
     def __init__(self, value):
         self.value = value
@@ -193,6 +184,32 @@ class InputStatement:
 
     def __repr__(self):
         return f"(input_var -> {self.info_value.value})"
+
+class ClassStatement:
+    def __init__(self, class_name_token, expression, variables=None, functions=None):
+        self.class_name_token = class_name_token
+        self.expression = expression
+        self.variables = variables
+        self.functions = functions
+
+    def __repr__(self):
+        return f"(class {self.class_name_token.value}: {self.expression})"
+
+class InstantiateStatement:
+    def __init__(self, class_name):
+        self.class_name = class_name
+
+    def __repr__(self):
+        return f"(Instantiate -> {self.class_name.value})"
+
+class SetCVStatement:
+    def __init__(self, class_name, class_value, class_new_value):
+        self.class_name = class_name
+        self.class_value = class_value
+        self.class_new_value = class_new_value
+
+    def __repr__(self):
+        return f"(Set class: -> {self.class_name.value}.{self.class_value.value} -> {self.class_new_value.value})"
 
 class Parser:
     def __init__(self, tokens):
@@ -255,7 +272,7 @@ class Parser:
         return ending_expr
 
     def expr(self):
-        # RUN FUNCTION
+        # RUN FUNCTION, RUN CLASS
         if self.currtok.T_TYPE==T_IDENTIFIER:
             if self.tokidx+1<len(self.tokens) and self.tokens[self.tokidx+1].T_TYPE==T_LPAR:
                 func_name = self.currtok
@@ -269,10 +286,6 @@ class Parser:
                     return Token(T_ERROR)
                 self.advance()
                 return RunFuncStatement(func_name, arguments)
-                """if self.currtok.matches(T_KEYWORD, ";"):
-                    
-                else:
-                    print("Missing ';' after function call")"""
         # VARIABLE ASSIGNMENT
         if self.currtok.matches(T_KEYWORD, "store"):
             self.advance( )
@@ -295,15 +308,15 @@ class Parser:
                 else:
                     expr = oldexpr
 
-                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL, T_DOLLAR):
                     expr = self.expr( )
-            elif self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+            elif self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL, T_DOLLAR):
                 expr = self.expr()
                 if expr!=None:
                     expr = self.leftest_expression_modifier(expr, oldexpr)
                 else:
                     expr = oldexpr
-                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+                while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL, T_DOLLAR):
                     expr = self.expr( )
             self.advance( )
             if self.currtok.T_TYPE == T_NEWLINE or self.currtok.T_TYPE == T_RPAR:
@@ -444,7 +457,7 @@ class Parser:
             func_name_token = self.currtok
             self.advance( )
             if self.currtok.T_TYPE != T_LPAR:
-                print("Required '(' after if statement")
+                print("Required '(' after function statement")
                 return Token(T_ERROR)
             self.advance( )
             arguments = []
@@ -452,7 +465,7 @@ class Parser:
                 arguments.append(self.expr( ))
             self.advance( )
             if self.currtok.T_TYPE != T_LGPAR:
-                print("Required '{' at if opening")
+                print("Required '{' at function opening")
                 return Token(T_ERROR)
             self.advance( )
             # skip NEWLINE
@@ -464,7 +477,7 @@ class Parser:
                 self.advance( )
             self.advance( )
             self.recentlyEndedIf = False
-            """NEEDS TO COMPLETE ARGUMENTS (, DOESNT WORK"""
+
             return FuncStatement(func_name_token, arguments, expressions)
         # RETURN STATEMENT
         if self.currtok.matches(T_KEYWORD, "return"):
@@ -691,10 +704,75 @@ class Parser:
                 return Token(T_ERROR)
             self.advance( )
             return InputStatement(input_info)
+        # CLASS STATEMENT
+        if self.currtok.matches(T_KEYWORD, "class"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_IDENTIFIER:
+                print("Required class name")
+                return Token(T_ERROR)
+            class_name_token = self.currtok
+            self.advance( )
+            if self.currtok.T_TYPE != T_LGPAR:
+                print("Required '{' at function opening")
+                return Token(T_ERROR)
+            self.advance( )
+            # skip NEWLINE
+            if self.currtok.T_TYPE == T_NEWLINE:
+                self.advance( )
+            expressions = []
+            while self.currtok.T_TYPE != T_RGPAR:
+                expressions.append(self.expr( ))
+                self.advance( )
+            self.advance( )
+            self.recentlyEndedIf = False
+
+            return ClassStatement(class_name_token, expressions)
+        #INSTANTIATE STATEMENT
+        if self.currtok.matches(T_KEYWORD, "Instantiate"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after input statement")
+                return Token(T_ERROR)
+            self.advance( )
+            class_name = self.currtok
+            """changed"""
+            if class_name.value == "getAV":
+                class_name = self.expr( )
+            else:
+                self.advance( )
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after input statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return InstantiateStatement(class_name)
+        # INSTANTIATE STATEMENT
+        if self.currtok.matches(T_KEYWORD, "setCV"):
+            self.advance( )
+            if self.currtok.T_TYPE != T_LPAR:
+                print("Required '(' after setCV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            class_name = self.currtok
+            self.advance( )
+            class_value = self.currtok
+            self.advance( )
+            class_new_value = self.currtok
+            if class_new_value.value == "getAV":
+                class_new_value = self.expr( )
+            else:
+                self.advance( )
+
+
+            if self.currtok.T_TYPE != T_RPAR:
+                print("Required ')' after setCV statement")
+                return Token(T_ERROR)
+            self.advance( )
+            return SetCVStatement(class_name, class_value, class_new_value)
+
 
         # MATH OPERATIONS
         left = self.term( )
-        while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL):
+        while self.currtok.T_TYPE in (T_PLUS, T_MINUS, T_MUL, T_DIV, T_LST, T_GRT, T_LOE, T_GOE, T_EQUAL, T_NOTEQUAL, T_DOLLAR):
             op_token = self.currtok
             self.advance( )
             right = None
